@@ -1,8 +1,12 @@
-@AGENTS.md
+Read @AGENTS.md only when **actively writing or editing project files** and at least one is true:
+
+- `next` is in `package.json`
+- Task touches `app/`, `pages/`, `src/app/`, `src/pages/`, `next.config.*`, or `middleware.ts`
+- Any edited file imports from `next/*`
 
 # PRODUCT
  
-MockedIn is a web-based profile mockup tool that lets users design and preview a fully customizable, hypothetical LinkedIn-style profile page — without needing a real LinkedIn account. Core purpose: Generate a visually convincing LinkedIn profile UI from user-supplied data, with no backend, no authentication, and no real social network involved.
+MockedIn is a web-based profile mockup tool that lets users design and preview a fully customizable, hypothetical LinkedIn-style profile page with no authentication and no real social network involved.
 
 # Coding Guidelines
 
