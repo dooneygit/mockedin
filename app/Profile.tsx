@@ -150,14 +150,17 @@ function EntryLogo({
   src,
   fallbackBg,
   letter,
+  size = "lg",
 }: {
   src?: string;
   fallbackBg: string;
   letter: string;
+  size?: "sm" | "lg";
 }) {
+  const dims = size === "sm" ? "h-8 w-8 text-sm" : "h-12 w-12";
   return (
     <div
-      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md text-white font-semibold overflow-hidden"
+      className={`flex ${dims} shrink-0 items-center justify-center rounded-md text-white font-semibold overflow-hidden`}
       style={{ background: src ? "transparent" : fallbackBg }}
     >
       {src ? (
@@ -234,7 +237,7 @@ export default function Profile() {
           src={banner}
           onChange={setBanner}
           ariaLabel="Upload banner image"
-          className="block w-full h-[200px]"
+          className="block w-full aspect-[4/1]"
         >
           {(src) =>
             src ? (
@@ -251,7 +254,7 @@ export default function Profile() {
             src={avatar}
             onChange={setAvatar}
             ariaLabel="Upload profile picture"
-            className="absolute -top-[72px] left-6 h-[144px] w-[144px] rounded-full border-4 border-white bg-white"
+            className="absolute -top-[96px] left-1 h-[164px] w-[164px] rounded-full border-4 border-white bg-white"
           >
             {(src) =>
               src ? (
@@ -269,9 +272,9 @@ export default function Profile() {
             }
           </ImageUpload>
 
-          <div className="pt-[80px] flex justify-between gap-6">
+          <div className="flex justify-between gap-6 mt-[-67]">
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-bold leading-tight">
+              <h1 className="text-2xl font-semibold leading-tight">
                 <EditableText
                   ariaLabel="Full name"
                   value={name}
@@ -314,7 +317,7 @@ export default function Profile() {
                 <button className="rounded-full bg-[var(--li-blue)] hover:bg-[var(--li-blue-hover)] text-white font-semibold text-sm px-4 py-1.5">
                   + Connect
                 </button>
-                <button className="rounded-full border border-[var(--li-text-primary)] text-[var(--li-text-primary)] font-semibold text-sm px-4 py-1.5 hover:bg-black/5">
+                <button className="rounded-full border border-[var(--li-blue)] text-[var(--li-blue)] font-semibold text-sm px-4 py-1.5 hover:bg-[var(--li-blue)]/10">
                   Message
                 </button>
                 <button className="rounded-full border border-[var(--li-text-primary)] text-[var(--li-text-primary)] font-semibold text-sm px-4 py-1.5 hover:bg-black/5">
@@ -323,13 +326,14 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="hidden sm:flex shrink-0 flex-col gap-2 items-start text-sm">
+            <div className="hidden sm:flex shrink-0 flex-col gap-2 items-start text-sm pr-2">
               {currentCompany && (
                 <div className="flex items-center gap-2">
                   <EntryLogo
                     src={currentCompany.logo}
                     fallbackBg="#1f2937"
                     letter={currentCompany.company.charAt(0)}
+                    size="sm"
                   />
                   <span className="font-semibold">
                     {currentCompany.company}
@@ -342,6 +346,7 @@ export default function Profile() {
                     src={currentSchool.logo}
                     fallbackBg="#facc15"
                     letter={currentSchool.school.charAt(0)}
+                    size="sm"
                   />
                   <span className="font-semibold">{currentSchool.school}</span>
                 </div>
