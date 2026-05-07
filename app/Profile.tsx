@@ -19,25 +19,6 @@ type EducationEntry = {
   logo?: string;
 };
 
-const initialExperience: ExperienceEntry[] = [
-  {
-    id: "exp-1",
-    company: "Vivid Seats",
-    role: "Software Engineer",
-    dateRange: "Sep 2025 - Dec 2025 · 4 mos",
-    type: "Hybrid",
-  },
-];
-
-const initialEducation: EducationEntry[] = [
-  {
-    id: "edu-1",
-    school: "University of Waterloo",
-    field: "Computer Engineering",
-    dateRange: "2024 - 2029",
-  },
-];
-
 function EditableText({
   value,
   onChange,
@@ -185,16 +166,15 @@ export default function Profile() {
   const [connections, setConnections] = useState("0");
 
   const [experience, setExperience] =
-    useState<ExperienceEntry[]>(initialExperience);
+    useState<ExperienceEntry[]>([]);
   const [education, setEducation] =
-    useState<EducationEntry[]>(initialEducation);
+    useState<EducationEntry[]>([]);
 
-  const currentCompany = experience[0];
-  const currentSchool = education[0];
+  const currentCompany = experience?.[0] ?? null;
+  const currentSchool = education?.[0] ?? null;
 
   function addExperience() {
     setExperience((prev) => [
-      ...prev,
       {
         id: `exp-${Date.now()}`,
         company: "Company",
@@ -202,18 +182,19 @@ export default function Profile() {
         dateRange: "Start - End",
         type: "Full-time",
       },
+      ...prev,
     ]);
   }
 
   function addEducation() {
     setEducation((prev) => [
-      ...prev,
       {
         id: `edu-${Date.now()}`,
         school: "School",
         field: "Field of study",
         dateRange: "Start - End",
       },
+      ...prev,
     ]);
   }
 
