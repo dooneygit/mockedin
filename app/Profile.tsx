@@ -7,7 +7,6 @@ type ExperienceEntry = {
   company: string;
   role: string;
   dateRange: string;
-  type: string;
   logo?: string;
 };
 
@@ -154,6 +153,24 @@ function EntryLogo({
   );
 }
 
+const defaultExperience: ExperienceEntry[] = [
+  {
+    id: "exp-1",
+    company: "Company",
+    role: "Role",
+    dateRange: "Start to End",
+  }
+];
+
+const defaultEducation: EducationEntry[] = [
+  {
+    id: "edu-1",
+    school: "School",
+    field: "Field of Study",
+    dateRange: "Start to End",
+  }
+];
+
 export default function Profile() {
   const [banner, setBanner] = useState<string | undefined>();
   const [avatar, setAvatar] = useState<string | undefined>();
@@ -166,9 +183,9 @@ export default function Profile() {
   const [connections, setConnections] = useState("0");
 
   const [experience, setExperience] =
-    useState<ExperienceEntry[]>([]);
+    useState<ExperienceEntry[]>(defaultExperience);
   const [education, setEducation] =
-    useState<EducationEntry[]>([]);
+    useState<EducationEntry[]>(defaultEducation);
 
   const currentCompany = experience?.[0] ?? null;
   const currentSchool = education?.[0] ?? null;
@@ -180,7 +197,6 @@ export default function Profile() {
         company: "Company",
         role: "Role",
         dateRange: "Start - End",
-        type: "Full-time",
       },
       ...prev,
     ]);
@@ -307,7 +323,7 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="hidden sm:flex shrink-0 flex-col gap-2 items-start text-sm pr-2">
+            <div className="hidden sm:flex shrink-0 flex-col gap-2 items-start text-sm">
               {currentCompany && (
                 <div className="flex items-center gap-2">
                   <EntryLogo
@@ -383,12 +399,6 @@ export default function Profile() {
                   ariaLabel="Company"
                   value={exp.company}
                   onChange={(v) => updateExperience(exp.id, { company: v })}
-                />
-                <span className="mx-1">·</span>
-                <EditableText
-                  ariaLabel="Employment type"
-                  value={exp.type}
-                  onChange={(v) => updateExperience(exp.id, { type: v })}
                 />
               </p>
               <p className="text-sm text-[var(--li-text-secondary)]">
