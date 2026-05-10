@@ -142,7 +142,7 @@ function EntryLogo({
   const dims = size === "sm" ? "h-8 w-8 text-sm" : "h-12 w-12";
   return (
     <div
-      className={`flex ${dims} shrink-0 items-center justify-center rounded-md text-white font-semibold overflow-hidden`}
+      className={`flex ${dims} shrink-0 items-center justify-center rounded-sm text-white font-semibold overflow-hidden`}
       style={{ background: src ? "transparent" : fallbackBg }}
     >
       {src ? (
@@ -393,8 +393,12 @@ export default function Profile() {
 
       {/* Experience */}
       <SectionCard title="Experience" onAdd={addExperience}>
-        {experience.map((exp) => (
-          <div key={exp.id} className="flex gap-3">
+        {experience.map((exp, i) => (
+          <div key={exp.id}>
+            {i > 0 && (
+              <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
+            )}
+          <div className="flex gap-3">
             <ImageUpload
               src={exp.logo}
               onChange={(dataUrl) => updateExperience(exp.id, { logo: dataUrl })}
@@ -444,18 +448,23 @@ export default function Profile() {
               type="button"
               aria-label="Remove experience"
               onClick={() => removeExperience(exp.id)}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+              className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
             >
               −
             </button>
+          </div>
           </div>
         ))}
       </SectionCard>
 
       {/* Education */}
       <SectionCard title="Education" onAdd={addEducation}>
-        {education.map((edu) => (
-          <div key={edu.id} className="flex gap-3">
+        {education.map((edu, i) => (
+          <div key={edu.id}>
+            {i > 0 && (
+              <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
+            )}
+          <div className="flex gap-3">
             <ImageUpload
               src={edu.logo}
               onChange={(dataUrl) => updateEducation(edu.id, { logo: dataUrl })}
@@ -505,10 +514,11 @@ export default function Profile() {
               type="button"
               aria-label="Remove education"
               onClick={() => removeEducation(edu.id)}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+              className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
             >
               −
             </button>
+          </div>
           </div>
         ))}
       </SectionCard>
