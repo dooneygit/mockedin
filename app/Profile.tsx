@@ -323,29 +323,29 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="hidden sm:flex shrink-0 flex-col gap-2 items-start text-sm">
+            <div className="hidden sm:flex w-[260px] shrink-0 flex-col gap-2 items-start text-sm">
               {currentCompany && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-start gap-2 w-full">
                   <EntryLogo
                     src={currentCompany.logo}
                     fallbackBg="#1f2937"
                     letter={currentCompany.company.charAt(0)}
                     size="sm"
                   />
-                  <span className="font-semibold">
+                  <span className="font-semibold min-w-0 break-words">
                     {currentCompany.company}
                   </span>
                 </div>
               )}
               {currentSchool && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full">
                   <EntryLogo
                     src={currentSchool.logo}
                     fallbackBg="#facc15"
                     letter={currentSchool.school.charAt(0)}
                     size="sm"
                   />
-                  <span className="font-semibold">{currentSchool.school}</span>
+                  <span className="font-semibold min-w-0 break-words">{currentSchool.school}</span>
                 </div>
               )}
             </div>
