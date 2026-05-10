@@ -232,6 +232,14 @@ export default function Profile() {
     );
   }
 
+  function removeExperience(id: string) {
+    setExperience((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  function removeEducation(id: string) {
+    setEducation((prev) => prev.filter((e) => e.id !== id));
+  }
+
   return (
     <main className="w-full max-w-4xl mx-auto py-6 px-4 space-y-2">
       {/* Profile header card */}
@@ -432,6 +440,14 @@ export default function Profile() {
                 />
               </p>
             </div>
+            <button
+              type="button"
+              aria-label="Remove experience"
+              onClick={() => removeExperience(exp.id)}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+            >
+              −
+            </button>
           </div>
         ))}
       </SectionCard>
@@ -485,6 +501,14 @@ export default function Profile() {
                 />
               </p>
             </div>
+            <button
+              type="button"
+              aria-label="Remove education"
+              onClick={() => removeEducation(edu.id)}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+            >
+              −
+            </button>
           </div>
         ))}
       </SectionCard>
