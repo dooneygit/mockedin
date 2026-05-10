@@ -7,6 +7,7 @@ type ExperienceEntry = {
   company: string;
   role: string;
   dateRange: string;
+  description: string;
   logo?: string;
 };
 
@@ -15,6 +16,7 @@ type EducationEntry = {
   school: string;
   field: string;
   dateRange: string;
+  description: string;
   logo?: string;
 };
 
@@ -159,6 +161,7 @@ const defaultExperience: ExperienceEntry[] = [
     company: "Company",
     role: "Role",
     dateRange: "Start to End",
+    description: "Description",
   }
 ];
 
@@ -168,6 +171,7 @@ const defaultEducation: EducationEntry[] = [
     school: "School",
     field: "Field of Study",
     dateRange: "Start to End",
+    description: "Description",
   }
 ];
 
@@ -197,6 +201,7 @@ export default function Profile() {
         company: "Company",
         role: "Role",
         dateRange: "Start - End",
+        description: "Description",
       },
       ...prev,
     ]);
@@ -209,6 +214,7 @@ export default function Profile() {
         school: "School",
         field: "Field of study",
         dateRange: "Start - End",
+        description: "Description",
       },
       ...prev,
     ]);
@@ -417,6 +423,14 @@ export default function Profile() {
                   onChange={(v) => updateExperience(exp.id, { dateRange: v })}
                 />
               </p>
+              <p className="text-sm mt-2">
+                <EditableText
+                  ariaLabel="Description"
+                  value={exp.description}
+                  onChange={(v) => updateExperience(exp.id, { description: v })}
+                  multiline
+                />
+              </p>
             </div>
           </div>
         ))}
@@ -460,6 +474,14 @@ export default function Profile() {
                   ariaLabel="Date range"
                   value={edu.dateRange}
                   onChange={(v) => updateEducation(edu.id, { dateRange: v })}
+                />
+              </p>
+              <p className="text-sm mt-2">
+                <EditableText
+                  ariaLabel="Description"
+                  value={edu.description}
+                  onChange={(v) => updateEducation(edu.id, { description: v })}
+                  multiline
                 />
               </p>
             </div>
