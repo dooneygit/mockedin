@@ -325,7 +325,7 @@ export default function Profile() {
 
             <div className="hidden sm:flex w-[260px] shrink-0 flex-col gap-2 items-start text-sm">
               {currentCompany && (
-                <div className="flex items-start gap-2 w-full">
+                <div className="flex items-center gap-2 w-full">
                   <EntryLogo
                     src={currentCompany.logo}
                     fallbackBg="#1f2937"
@@ -381,11 +381,20 @@ export default function Profile() {
       <SectionCard title="Experience" onAdd={addExperience}>
         {experience.map((exp) => (
           <div key={exp.id} className="flex gap-3">
-            <EntryLogo
+            <ImageUpload
               src={exp.logo}
-              fallbackBg="#1f2937"
-              letter={exp.company.charAt(0)}
-            />
+              onChange={(dataUrl) => updateExperience(exp.id, { logo: dataUrl })}
+              ariaLabel={`Upload ${exp.company} logo`}
+              className="h-12 w-12 shrink-0 rounded-md"
+            >
+              {(src) => (
+                <EntryLogo
+                  src={src}
+                  fallbackBg="#1f2937"
+                  letter={exp.company.charAt(0)}
+                />
+              )}
+            </ImageUpload>
             <div className="flex-1 min-w-0">
               <p className="font-semibold">
                 <EditableText
@@ -417,11 +426,20 @@ export default function Profile() {
       <SectionCard title="Education" onAdd={addEducation}>
         {education.map((edu) => (
           <div key={edu.id} className="flex gap-3">
-            <EntryLogo
+            <ImageUpload
               src={edu.logo}
-              fallbackBg="#facc15"
-              letter={edu.school.charAt(0)}
-            />
+              onChange={(dataUrl) => updateEducation(edu.id, { logo: dataUrl })}
+              ariaLabel={`Upload ${edu.school} logo`}
+              className="h-12 w-12 shrink-0 rounded-md"
+            >
+              {(src) => (
+                <EntryLogo
+                  src={src}
+                  fallbackBg="#facc15"
+                  letter={edu.school.charAt(0)}
+                />
+              )}
+            </ImageUpload>
             <div className="flex-1 min-w-0">
               <p className="font-semibold">
                 <EditableText
