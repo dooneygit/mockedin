@@ -7,7 +7,7 @@ type ExperienceEntry = {
   company: string;
   role: string;
   dateRange: string;
-  type: string;
+  description: string;
   logo?: string;
 };
 
@@ -16,27 +16,9 @@ type EducationEntry = {
   school: string;
   field: string;
   dateRange: string;
+  description: string;
   logo?: string;
 };
-
-const initialExperience: ExperienceEntry[] = [
-  {
-    id: "exp-1",
-    company: "Vivid Seats",
-    role: "Software Engineer",
-    dateRange: "Sep 2025 - Dec 2025 · 4 mos",
-    type: "Hybrid",
-  },
-];
-
-const initialEducation: EducationEntry[] = [
-  {
-    id: "edu-1",
-    school: "University of Waterloo",
-    field: "Computer Engineering",
-    dateRange: "2024 - 2029",
-  },
-];
 
 function EditableText({
   value,
@@ -160,7 +142,7 @@ function EntryLogo({
   const dims = size === "sm" ? "h-8 w-8 text-sm" : "h-12 w-12";
   return (
     <div
-      className={`flex ${dims} shrink-0 items-center justify-center rounded-md text-white font-semibold overflow-hidden`}
+      className={`flex ${dims} shrink-0 items-center justify-center rounded-sm text-white font-semibold overflow-hidden`}
       style={{ background: src ? "transparent" : fallbackBg }}
     >
       {src ? (
@@ -172,6 +154,26 @@ function EntryLogo({
     </div>
   );
 }
+
+const defaultExperience: ExperienceEntry[] = [
+  {
+    id: "exp-1",
+    company: "Company",
+    role: "Role",
+    dateRange: "Start to End",
+    description: "Description",
+  }
+];
+
+const defaultEducation: EducationEntry[] = [
+  {
+    id: "edu-1",
+    school: "School",
+    field: "Field of Study",
+    dateRange: "Start to End",
+    description: "Description",
+  }
+];
 
 export default function Profile() {
   const [banner, setBanner] = useState<string | undefined>();
@@ -187,35 +189,36 @@ export default function Profile() {
   const [about, setAbout] = useState("About");
 
   const [experience, setExperience] =
-    useState<ExperienceEntry[]>(initialExperience);
+    useState<ExperienceEntry[]>(defaultExperience);
   const [education, setEducation] =
-    useState<EducationEntry[]>(initialEducation);
+    useState<EducationEntry[]>(defaultEducation);
 
-  const currentCompany = experience[0];
-  const currentSchool = education[0];
+  const currentCompany = experience?.[0] ?? null;
+  const currentSchool = education?.[0] ?? null;
 
   function addExperience() {
     setExperience((prev) => [
-      ...prev,
       {
         id: `exp-${Date.now()}`,
         company: "Company",
         role: "Role",
         dateRange: "Start - End",
-        type: "Full-time",
+        description: "Description",
       },
+      ...prev,
     ]);
   }
 
   function addEducation() {
     setEducation((prev) => [
-      ...prev,
       {
         id: `edu-${Date.now()}`,
         school: "School",
         field: "Field of study",
         dateRange: "Start - End",
+        description: "Description",
       },
+      ...prev,
     ]);
   }
 
@@ -229,6 +232,14 @@ export default function Profile() {
     setEducation((prev) =>
       prev.map((e) => (e.id === id ? { ...e, ...patch } : e)),
     );
+  }
+
+  function removeExperience(id: string) {
+    setExperience((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  function removeEducation(id: string) {
+    setEducation((prev) => prev.filter((e) => e.id !== id));
   }
 
   return (
@@ -328,29 +339,29 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="hidden sm:flex shrink-0 flex-col gap-2 items-start text-sm pr-2">
+            <div className="hidden sm:flex w-[260px] shrink-0 flex-col gap-2 items-start text-sm">
               {currentCompany && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full">
                   <EntryLogo
                     src={currentCompany.logo}
                     fallbackBg="#1f2937"
                     letter={currentCompany.company.charAt(0)}
                     size="sm"
                   />
-                  <span className="font-semibold">
+                  <span className="font-semibold min-w-0 break-words">
                     {currentCompany.company}
                   </span>
                 </div>
               )}
               {currentSchool && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full">
                   <EntryLogo
                     src={currentSchool.logo}
                     fallbackBg="#facc15"
                     letter={currentSchool.school.charAt(0)}
                     size="sm"
                   />
-                  <span className="font-semibold">{currentSchool.school}</span>
+                  <span className="font-semibold min-w-0 break-words">{currentSchool.school}</span>
                 </div>
               )}
             </div>
@@ -392,13 +403,26 @@ export default function Profile() {
 
       {/* Experience */}
       <SectionCard title="Experience" onAdd={addExperience}>
-        {experience.map((exp) => (
-          <div key={exp.id} className="flex gap-3">
-            <EntryLogo
+        {experience.map((exp, i) => (
+          <div key={exp.id}>
+            {i > 0 && (
+              <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
+            )}
+          <div className="flex gap-3">
+            <ImageUpload
               src={exp.logo}
-              fallbackBg="#1f2937"
-              letter={exp.company.charAt(0)}
-            />
+              onChange={(dataUrl) => updateExperience(exp.id, { logo: dataUrl })}
+              ariaLabel={`Upload ${exp.company} logo`}
+              className="h-12 w-12 shrink-0 rounded-md"
+            >
+              {(src) => (
+                <EntryLogo
+                  src={src}
+                  fallbackBg="#1f2937"
+                  letter={exp.company.charAt(0)}
+                />
+              )}
+            </ImageUpload>
             <div className="flex-1 min-w-0">
               <p className="font-semibold">
                 <EditableText
@@ -413,12 +437,6 @@ export default function Profile() {
                   value={exp.company}
                   onChange={(v) => updateExperience(exp.id, { company: v })}
                 />
-                <span className="mx-1">·</span>
-                <EditableText
-                  ariaLabel="Employment type"
-                  value={exp.type}
-                  onChange={(v) => updateExperience(exp.id, { type: v })}
-                />
               </p>
               <p className="text-sm text-[var(--li-text-secondary)]">
                 <EditableText
@@ -427,20 +445,50 @@ export default function Profile() {
                   onChange={(v) => updateExperience(exp.id, { dateRange: v })}
                 />
               </p>
+              <p className="text-sm mt-2">
+                <EditableText
+                  ariaLabel="Description"
+                  value={exp.description}
+                  onChange={(v) => updateExperience(exp.id, { description: v })}
+                  multiline
+                />
+              </p>
             </div>
+            <button
+              type="button"
+              aria-label="Remove experience"
+              onClick={() => removeExperience(exp.id)}
+              className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+            >
+              −
+            </button>
+          </div>
           </div>
         ))}
       </SectionCard>
 
       {/* Education */}
       <SectionCard title="Education" onAdd={addEducation}>
-        {education.map((edu) => (
-          <div key={edu.id} className="flex gap-3">
-            <EntryLogo
+        {education.map((edu, i) => (
+          <div key={edu.id}>
+            {i > 0 && (
+              <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
+            )}
+          <div className="flex gap-3">
+            <ImageUpload
               src={edu.logo}
-              fallbackBg="#facc15"
-              letter={edu.school.charAt(0)}
-            />
+              onChange={(dataUrl) => updateEducation(edu.id, { logo: dataUrl })}
+              ariaLabel={`Upload ${edu.school} logo`}
+              className="h-12 w-12 shrink-0 rounded-md"
+            >
+              {(src) => (
+                <EntryLogo
+                  src={src}
+                  fallbackBg="#facc15"
+                  letter={edu.school.charAt(0)}
+                />
+              )}
+            </ImageUpload>
             <div className="flex-1 min-w-0">
               <p className="font-semibold">
                 <EditableText
@@ -463,7 +511,24 @@ export default function Profile() {
                   onChange={(v) => updateEducation(edu.id, { dateRange: v })}
                 />
               </p>
+              <p className="text-sm mt-2">
+                <EditableText
+                  ariaLabel="Description"
+                  value={edu.description}
+                  onChange={(v) => updateEducation(edu.id, { description: v })}
+                  multiline
+                />
+              </p>
             </div>
+            <button
+              type="button"
+              aria-label="Remove education"
+              onClick={() => removeEducation(edu.id)}
+              className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+            >
+              −
+            </button>
+          </div>
           </div>
         ))}
       </SectionCard>
