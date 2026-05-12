@@ -186,6 +186,8 @@ export default function Profile() {
   const [location, setLocation] = useState("Country");
   const [connections, setConnections] = useState("0");
 
+  const [about, setAbout] = useState("About");
+
   const [experience, setExperience] =
     useState<ExperienceEntry[]>(defaultExperience);
   const [education, setEducation] =
@@ -365,6 +367,14 @@ export default function Profile() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* About */}
+      <section className="li-card p-6">
+        <h2 className="text-xl font-semibold mb-2">About</h2>
+        <p className="text-sm text-[var(--li-text-secondary)]">
+          <EditableText ariaLabel="About" value={about} onChange={setAbout} />
+        </p>
       </section>
 
       {/* Activity */}
