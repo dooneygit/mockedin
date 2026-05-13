@@ -185,6 +185,7 @@ export default function Profile() {
   );
   const [location, setLocation] = useState("Country");
   const [connections, setConnections] = useState("0");
+  const [followers, setFollowers] = useState("0");
 
   const [about, setAbout] = useState("About");
 
@@ -378,7 +379,7 @@ export default function Profile() {
       </section>
 
       {/* Activity */}
-      <section className="li-card p-6">
+      <section className="li-card p-6 flex flex-col">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Activity</h2>
           <button
@@ -389,14 +390,18 @@ export default function Profile() {
           </button>
         </div>
         <p className="mt-1 text-sm text-[var(--li-text-secondary)]">
-          {connections} followers
+          <EditableText
+            ariaLabel="Connection count"
+            value={followers}
+            onChange={setFollowers}
+          />{" "}
+          followers
         </p>
         <p className="mt-4 font-semibold">{name} has not made recent posts</p>
         <p className="mt-1 text-sm text-[var(--li-text-secondary)]">
           Recent posts {name} shares will be displayed here.
         </p>
-        <div className="mt-4 -mx-6 border-t border-[var(--li-border)]" />
-        <button className="mt-3 w-full text-center text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5 rounded py-1">
+        <button className="mt-4 -mx-6 -mb-6 border-t border-[var(--li-border)] py-3 text-center text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5 rounded-b-lg">
           Show all →
         </button>
       </section>
