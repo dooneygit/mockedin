@@ -20,6 +20,13 @@ type EducationEntry = {
   logo?: string;
 };
 
+type CommentEntry = {
+  id: string;
+  commenter: string;
+  when: string;
+  body: string;
+};
+
 function EditableText({
   value,
   onChange,
@@ -175,6 +182,15 @@ const defaultEducation: EducationEntry[] = [
   }
 ];
 
+const defaultComments: CommentEntry[] = [
+  {
+    id: "cmt-1",
+    commenter: "Name",
+    when: "7mo",
+    body: "Description",
+  },
+];
+
 export default function Profile() {
   const [banner, setBanner] = useState<string | undefined>();
   const [avatar, setAvatar] = useState<string | undefined>();
@@ -194,6 +210,8 @@ export default function Profile() {
     useState<ExperienceEntry[]>(defaultExperience);
   const [education, setEducation] =
     useState<EducationEntry[]>(defaultEducation);
+  const [comments, setComments] =
+    useState<CommentEntry[]>(defaultComments);
 
   const currentCompany = experience?.[0] ?? null;
   const currentSchool = education?.[0] ?? null;
@@ -242,6 +260,28 @@ export default function Profile() {
 
   function removeEducation(id: string) {
     setEducation((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  function addComment() {
+    setComments((prev) => [
+      {
+        id: `cmt-${Date.now()}`,
+        commenter: "Name",
+        when: "7mo",
+        body: "Description",
+      },
+      ...prev,
+    ]);
+  }
+
+  function updateComment(id: string, patch: Partial<CommentEntry>) {
+    setComments((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+    );
+  }
+
+  function removeComment(id: string) {
+    setComments((prev) => prev.filter((c) => c.id !== id));
   }
 
   return (
@@ -388,12 +428,22 @@ export default function Profile() {
       <section className="li-card p-6 flex flex-col">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Activity</h2>
-          <button
-            type="button"
-            className="rounded-full border border-[var(--li-blue)] text-[var(--li-blue)] font-semibold text-sm px-4 py-1 hover:bg-[var(--li-blue)]/10"
-          >
-            + Follow
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Add comment"
+              onClick={addComment}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-[var(--li-blue)] text-[var(--li-blue)] font-semibold text-sm px-4 py-1 hover:bg-[var(--li-blue)]/10"
+            >
+              + Follow
+            </button>
+          </div>
         </div>
         <p className="mt-1 text-sm text-[var(--li-text-secondary)]">
           <EditableText
@@ -403,10 +453,58 @@ export default function Profile() {
           />{" "}
           followers
         </p>
-        <p className="mt-4 font-semibold">{firstName} has not made recent posts</p>
-        <p className="mt-1 text-sm text-[var(--li-text-secondary)]">
-          Recent posts {firstName} shares will be displayed here.
-        </p>
+        {comments.length === 0 ? (
+          <>
+            <p className="mt-4 font-semibold">{firstName} has not made recent posts</p>
+            <p className="mt-1 text-sm text-[var(--li-text-secondary)]">
+              Recent posts {firstName} shares will be displayed here.
+            </p>
+          </>
+        ) : (
+          <div className="mt-4 space-y-5">
+            {comments.map((cmt, i) => (
+              <div key={cmt.id}>
+                {i > 0 && (
+                  <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
+                )}
+                <div className="flex gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-[var(--li-semibold)]">
+                      <EditableText
+                        ariaLabel="Commenter name"
+                        className="font-semibold"
+                        value={cmt.commenter}
+                        onChange={(v) => updateComment(cmt.id, { commenter: v })}
+                      />
+                      {" commented on a post • "}
+                      <EditableText
+                        ariaLabel="When"
+                        value={cmt.when}
+                        onChange={(v) => updateComment(cmt.id, { when: v })}
+                      />
+                    </p>
+                    <p className="text-sm mt-2">
+                      <EditableText
+                        ariaLabel="Comment body"
+                        value={cmt.body}
+                        onChange={(v) => updateComment(cmt.id, { body: v })}
+                        multiline
+                      />
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Remove comment"
+                    onClick={() => removeComment(cmt.id)}
+                    className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+                  >
+                    −
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         <button className="mt-4 -mx-6 -mb-6 border-t border-[var(--li-border)] py-3 text-center text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5 rounded-b-lg">
           Show all →
         </button>
