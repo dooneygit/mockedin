@@ -179,7 +179,8 @@ export default function Profile() {
   const [banner, setBanner] = useState<string | undefined>();
   const [avatar, setAvatar] = useState<string | undefined>();
 
-  const [name, setName] = useState("First Last");
+  const [firstName, setFirstName] = useState("First");
+  const [lastName, setLastName] = useState("Last");
   const [headline, setHeadline] = useState(
     "Headline",
   );
@@ -290,9 +291,14 @@ export default function Profile() {
             <div className="min-w-0 flex-1">
               <h1 className="text-2xl font-semibold leading-tight">
                 <EditableText
-                  ariaLabel="Full name"
-                  value={name}
-                  onChange={setName}
+                  ariaLabel="First name"
+                  value={firstName}
+                  onChange={setFirstName}
+                />{" "}
+                <EditableText
+                  ariaLabel="Last name"
+                  value={lastName}
+                  onChange={setLastName}
                 />
               </h1>
               <p className="mt-1 text-base text-[var(--li-text-primary)]">
@@ -397,9 +403,9 @@ export default function Profile() {
           />{" "}
           followers
         </p>
-        <p className="mt-4 font-semibold">{name} has not made recent posts</p>
+        <p className="mt-4 font-semibold">{firstName} has not made recent posts</p>
         <p className="mt-1 text-sm text-[var(--li-text-secondary)]">
-          Recent posts {name} shares will be displayed here.
+          Recent posts {firstName} shares will be displayed here.
         </p>
         <button className="mt-4 -mx-6 -mb-6 border-t border-[var(--li-border)] py-3 text-center text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5 rounded-b-lg">
           Show all →
