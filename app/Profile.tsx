@@ -184,8 +184,8 @@ const defaultEducation: EducationEntry[] = [
 const defaultComments: CommentEntry[] = [
   {
     id: "cmt-1",
-    when: "7mo",
-    body: "Description",
+    when: "1mo",
+    body: "Comment",
   },
 ];
 
@@ -264,8 +264,8 @@ export default function Profile() {
     setComments((prev) => [
       {
         id: `cmt-${Date.now()}`,
-        when: "7mo",
-        body: "Description",
+        when: "1mo",
+        body: "Comment",
       },
       ...prev,
     ]);
@@ -444,7 +444,7 @@ export default function Profile() {
         </div>
         <p className="mt-1 text-sm text-[var(--li-text-secondary)]">
           <EditableText
-            ariaLabel="Connection count"
+            ariaLabel="Follower count"
             value={followers}
             onChange={setFollowers}
           />{" "}
