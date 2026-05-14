@@ -458,13 +458,13 @@ export default function Profile() {
             </p>
           </>
         ) : (
-          <div className="mt-4 space-y-5">
+          <div className="mt-5 space-y-5">
             {comments.map((cmt, i) => (
               <div key={cmt.id}>
                 {i > 0 && (
-                  <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
+                  <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-6" />
                 )}
-                <div className="flex gap-3">
+                <div className="flex gap-3 mb-6">
                   <div className="flex-1 min-w-0">
                     <p className="text-xs">
                       <span className="font-semibold text-[var(--li-semibold)]">{firstName} {lastName}</span>
@@ -498,7 +498,7 @@ export default function Profile() {
             ))}
           </div>
         )}
-        <button className="mt-4 -mx-6 -mb-6 border-t border-[var(--li-border)] py-3 text-center text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5 rounded-b-lg">
+        <button className="-mx-6 -mb-6 border-t border-[var(--li-border)] py-3 text-center text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5 rounded-b-lg">
           Show all →
         </button>
       </section>
