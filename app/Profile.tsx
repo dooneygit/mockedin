@@ -22,7 +22,6 @@ type EducationEntry = {
 
 type CommentEntry = {
   id: string;
-  commenter: string;
   when: string;
   body: string;
 };
@@ -185,7 +184,6 @@ const defaultEducation: EducationEntry[] = [
 const defaultComments: CommentEntry[] = [
   {
     id: "cmt-1",
-    commenter: "Name",
     when: "7mo",
     body: "Description",
   },
@@ -266,7 +264,6 @@ export default function Profile() {
     setComments((prev) => [
       {
         id: `cmt-${Date.now()}`,
-        commenter: "Name",
         when: "7mo",
         body: "Description",
       },
@@ -469,16 +466,12 @@ export default function Profile() {
                 )}
                 <div className="flex gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[var(--li-semibold)]">
-                      <EditableText
-                        ariaLabel="Commenter name"
-                        className="font-semibold"
-                        value={cmt.commenter}
-                        onChange={(v) => updateComment(cmt.id, { commenter: v })}
-                      />
-                      {" commented on a post • "}
+                    <p className="text-xs">
+                      <span className="font-semibold text-[var(--li-semibold)]">{firstName} {lastName}</span>
+                      <span className="text-[var(--li-text-secondary)]">{" commented on a post • "}</span>
                       <EditableText
                         ariaLabel="When"
+                        className="text-[var(--li-text-secondary)]"
                         value={cmt.when}
                         onChange={(v) => updateComment(cmt.id, { when: v })}
                       />
