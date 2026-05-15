@@ -168,6 +168,7 @@ const defaultExperience: ExperienceEntry[] = [
     role: "Role",
     dateRange: "Start to End",
     description: "Description",
+    logo: "/images/default-logo.webp",
   }
 ];
 
@@ -178,6 +179,7 @@ const defaultEducation: EducationEntry[] = [
     field: "Field of Study",
     dateRange: "Start to End",
     description: "Description",
+    logo: "/images/default-logo.webp",
   }
 ];
 
@@ -190,7 +192,7 @@ const defaultComments: CommentEntry[] = [
 ];
 
 export default function Profile() {
-  const [banner, setBanner] = useState<string | undefined>();
+  const [banner, setBanner] = useState<string | undefined>("/images/default-banner.webp");
   const [avatar, setAvatar] = useState<string | undefined>();
 
   const [firstName, setFirstName] = useState("First");
@@ -222,6 +224,7 @@ export default function Profile() {
         role: "Role",
         dateRange: "Start - End",
         description: "Description",
+        logo: "/images/default-logo.webp",
       },
       ...prev,
     ]);
@@ -235,6 +238,7 @@ export default function Profile() {
         field: "Field of study",
         dateRange: "Start - End",
         description: "Description",
+        logo: "/images/default-logo.webp",
       },
       ...prev,
     ]);
