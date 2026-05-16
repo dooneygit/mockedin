@@ -203,6 +203,8 @@ export default function Profile() {
   const [location, setLocation] = useState("Country");
   const [connections, setConnections] = useState("0");
   const [followers, setFollowers] = useState("0");
+  const [showFollowers, setShowFollowers] = useState(true);
+  const [showConnections, setShowConnections] = useState(true);
 
   const [about, setAbout] = useState("About");
 
@@ -365,14 +367,46 @@ export default function Profile() {
                 </a>
               </p>
               <p className="mt-1 text-sm font-semibold text-[var(--li-blue)]">
-                <EditableText
-                  ariaLabel="Connection count"
-                  value={connections}
-                  onChange={setConnections}
-                  className="!text-[var(--li-blue)]"
-                />{" "}
-                connections
+                {showFollowers && (
+                  <>
+                    <EditableText
+                      ariaLabel="Follower count"
+                      value={followers}
+                      onChange={setFollowers}
+                      className="!text-[var(--li-blue)]"
+                    />{" "}
+                    followers
+                  </>
+                )}
+                {showFollowers && showConnections && <span className="mx-1">·</span>}
+                {showConnections && (
+                  <>
+                    <EditableText
+                      ariaLabel="Connection count"
+                      value={connections}
+                      onChange={setConnections}
+                      className="!text-[var(--li-blue)]"
+                    />{" "}
+                    connections
+                  </>
+                )}
               </p>
+              <div className="mt-0.5 flex gap-3 text-xs text-[var(--li-text-secondary)]">
+                <button
+                  type="button"
+                  onClick={() => { if (showConnections) setShowFollowers((v) => !v); }}
+                  className={`hover:underline ${showFollowers ? "font-semibold text-[var(--li-blue)]" : ""}`}
+                >
+                  Followers
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { if (showFollowers) setShowConnections((v) => !v); }}
+                  className={`hover:underline ${showConnections ? "font-semibold text-[var(--li-blue)]" : ""}`}
+                >
+                  Connections
+                </button>
+              </div>
 
               <div className="mt-4 flex gap-2 flex-wrap">
                 <button className="rounded-full bg-[var(--li-blue)] hover:bg-[var(--li-blue-hover)] text-white font-semibold text-sm px-4 py-1.5">
@@ -457,7 +491,7 @@ export default function Profile() {
         {comments.length === 0 ? (
           <>
             <p className="mt-4 font-semibold">{firstName} has not made recent posts</p>
-            <p className="mt-1 text-sm text-[var(--li-text-secondary)]">
+            <p className="mt-1 mb-4 text-sm text-[var(--li-text-secondary)]">
               Recent posts {firstName} shares will be displayed here.
             </p>
           </>
