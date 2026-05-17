@@ -367,7 +367,7 @@ export default function Profile() {
                 </a>
               </p>
               <p className="flex mt-1">
-                <div className="text-sm text-[var(--li-text-secondary)]">
+                <div className="text-sm text-[var(--li-text-secondary)] flex-1">
                   {showFollowers && (
                     <>
                       <EditableText
@@ -392,7 +392,7 @@ export default function Profile() {
                     </>
                   )}
                 </div>
-                <div className="flex gap-3 text-xs text-[var(--li-text-secondary)]">
+                <div className="flex gap-3 text-xs text-[var(--li-text-secondary)] flex-1">
                   <button
                     type="button"
                     onClick={() => { if (showConnections) setShowFollowers((v) => !v); }}
