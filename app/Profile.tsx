@@ -367,7 +367,7 @@ export default function Profile() {
                 </a>
               </p>
               <p className="flex mt-1">
-                <div className="text-sm text-[var(--li-text-secondary)] flex-1">
+                <div className="text-sm text-[var(--li-text-secondary)] w-48">
                   {showFollowers && (
                     <>
                       <EditableText
