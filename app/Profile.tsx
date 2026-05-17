@@ -366,47 +366,49 @@ export default function Profile() {
                   Contact info
                 </a>
               </p>
-              <p className="mt-1 text-sm font-semibold text-[var(--li-blue)]">
-                {showFollowers && (
-                  <>
-                    <EditableText
-                      ariaLabel="Follower count"
-                      value={followers}
-                      onChange={setFollowers}
-                      className="!text-[var(--li-blue)]"
-                    />{" "}
-                    followers
-                  </>
-                )}
-                {showFollowers && showConnections && <span className="mx-1">·</span>}
-                {showConnections && (
-                  <>
-                    <EditableText
-                      ariaLabel="Connection count"
-                      value={connections}
-                      onChange={setConnections}
-                      className="!text-[var(--li-blue)]"
-                    />{" "}
-                    connections
-                  </>
-                )}
+              <p className="flex mt-1">
+                <div className="text-sm text-[var(--li-text-secondary)]">
+                  {showFollowers && (
+                    <>
+                      <EditableText
+                        ariaLabel="Follower count"
+                        value={followers}
+                        onChange={setFollowers}
+                        className="text-[var(--li-text-secondary)]"
+                      />{" "}
+                      followers
+                    </>
+                  )}
+                  {showFollowers && showConnections && <span className="mx-1">·</span>}
+                  {showConnections && (
+                    <>
+                      <EditableText
+                        ariaLabel="Connection count"
+                        value={connections}
+                        onChange={setConnections}
+                        className="font-semibold text-[var(--li-text-secondary)]"
+                      />{" "}
+                      connections
+                    </>
+                  )}
+                </div>
+                <div className="flex gap-3 text-xs text-[var(--li-text-secondary)]">
+                  <button
+                    type="button"
+                    onClick={() => { if (showConnections) setShowFollowers((v) => !v); }}
+                    className="hover:underline font-semibold text-[var(--li-text-secondary)]"
+                  >
+                    Toggle followers
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { if (showFollowers) setShowConnections((v) => !v); }}
+                    className="hover:underline font-semibold text-[var(--li-text-secondary)]"
+                  >
+                    Toggle connections
+                  </button>
+                </div>
               </p>
-              <div className="mt-0.5 flex gap-3 text-xs text-[var(--li-text-secondary)]">
-                <button
-                  type="button"
-                  onClick={() => { if (showConnections) setShowFollowers((v) => !v); }}
-                  className={`hover:underline ${showFollowers ? "font-semibold text-[var(--li-blue)]" : ""}`}
-                >
-                  Followers
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { if (showFollowers) setShowConnections((v) => !v); }}
-                  className={`hover:underline ${showConnections ? "font-semibold text-[var(--li-blue)]" : ""}`}
-                >
-                  Connections
-                </button>
-              </div>
 
               <div className="mt-4 flex gap-2 flex-wrap">
                 <button className="rounded-full bg-[var(--li-blue)] hover:bg-[var(--li-blue-hover)] text-white font-semibold text-sm px-4 py-1.5">
