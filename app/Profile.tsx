@@ -729,13 +729,13 @@ export default function Profile() {
         >
           <div className="li-card flex h-[460px] w-[720px] overflow-hidden">
             {/* Left pane */}
-            <div className="relative flex flex-1 items-center justify-center bg-[#f4f2ee]">
+            <div className="relative flex flex-1 items-center justify-center">
               {logoModalSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={logoModalSrc}
                   alt=""
-                  className="max-h-full max-w-full object-contain p-6"
+                  className="max-h-75 max-w-75 object-contain"
                 />
               ) : (
                 <div className="flex h-24 w-24 items-center justify-center rounded-sm bg-zinc-200 text-4xl text-zinc-500">
@@ -760,7 +760,7 @@ export default function Profile() {
               </div>
             </div>
             {/* Right pane */}
-            <div className="w-72 border-l border-[var(--li-border)]" />
+            <div className="w-82 border-l border-[var(--li-border)]" />
           </div>
         </div>
       )}
