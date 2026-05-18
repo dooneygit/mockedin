@@ -215,8 +215,17 @@ export default function Profile() {
   const [comments, setComments] =
     useState<CommentEntry[]>(defaultComments);
 
+  const [logoModal, setLogoModal] = useState<{ type: "experience" | "education"; id: string } | null>(null);
+  const logoModalFileInputRef = useRef<HTMLInputElement>(null);
+
   const currentCompany = experience?.[0] ?? null;
   const currentSchool = education?.[0] ?? null;
+
+  const logoModalSrc = logoModal
+    ? logoModal.type === "experience"
+      ? experience.find((e) => e.id === logoModal.id)?.logo
+      : education.find((e) => e.id === logoModal.id)?.logo
+    : undefined;
 
   function addExperience() {
     setExperience((prev) => [
@@ -285,6 +294,22 @@ export default function Profile() {
 
   function removeComment(id: string) {
     setComments((prev) => prev.filter((c) => c.id !== id));
+  }
+
+  function handleLogoModalUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !logoModal) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== "string") return;
+      if (logoModal.type === "experience") {
+        updateExperience(logoModal.id, { logo: reader.result });
+      } else {
+        updateEducation(logoModal.id, { logo: reader.result });
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
   }
 
   return (
@@ -426,12 +451,22 @@ export default function Profile() {
             <div className="hidden sm:flex w-[260px] shrink-0 flex-col gap-2 items-start text-sm">
               {currentCompany && (
                 <div className="flex items-center gap-2 w-full">
-                  <EntryLogo
-                    src={currentCompany.logo}
-                    fallbackBg="#1f2937"
-                    letter={currentCompany.company.charAt(0)}
-                    size="sm"
-                  />
+                  <button
+                    type="button"
+                    aria-label={`View ${currentCompany.company} logo`}
+                    onClick={() => setLogoModal({ type: "experience", id: currentCompany.id })}
+                    className="group relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-sm"
+                  >
+                    <EntryLogo
+                      src={currentCompany.logo}
+                      fallbackBg="#1f2937"
+                      letter={currentCompany.company.charAt(0)}
+                      size="sm"
+                    />
+                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
+                      Edit
+                    </span>
+                  </button>
                   <span className="font-semibold min-w-0 break-words">
                     {currentCompany.company}
                   </span>
@@ -439,12 +474,22 @@ export default function Profile() {
               )}
               {currentSchool && (
                 <div className="flex items-center gap-2 w-full">
-                  <EntryLogo
-                    src={currentSchool.logo}
-                    fallbackBg="#facc15"
-                    letter={currentSchool.school.charAt(0)}
-                    size="sm"
-                  />
+                  <button
+                    type="button"
+                    aria-label={`View ${currentSchool.school} logo`}
+                    onClick={() => setLogoModal({ type: "education", id: currentSchool.id })}
+                    className="group relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-sm"
+                  >
+                    <EntryLogo
+                      src={currentSchool.logo}
+                      fallbackBg="#facc15"
+                      letter={currentSchool.school.charAt(0)}
+                      size="sm"
+                    />
+                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
+                      Edit
+                    </span>
+                  </button>
                   <span className="font-semibold min-w-0 break-words">{currentSchool.school}</span>
                 </div>
               )}
@@ -492,8 +537,8 @@ export default function Profile() {
         </p>
         {comments.length === 0 ? (
           <>
-            <p className="mt-4 font-semibold">{firstName} has not made recent posts</p>
-            <p className="mt-1 mb-4 text-sm text-[var(--li-text-secondary)]">
+            <h2 className="text-xl font-semibold">{firstName} has not made recent posts</h2>
+            <p className="mb-4 text-sm">
               Recent posts {firstName} shares will be displayed here.
             </p>
           </>
@@ -551,20 +596,21 @@ export default function Profile() {
               <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
             )}
           <div className="flex gap-3">
-            <ImageUpload
-              src={exp.logo}
-              onChange={(dataUrl) => updateExperience(exp.id, { logo: dataUrl })}
-              ariaLabel={`Upload ${exp.company} logo`}
-              className="h-12 w-12 shrink-0 rounded-md"
+            <button
+              type="button"
+              aria-label={`View ${exp.company} logo`}
+              onClick={() => setLogoModal({ type: "experience", id: exp.id })}
+              className="group relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded-md"
             >
-              {(src) => (
-                <EntryLogo
-                  src={src}
-                  fallbackBg="#1f2937"
-                  letter={exp.company.charAt(0)}
-                />
-              )}
-            </ImageUpload>
+              <EntryLogo
+                src={exp.logo}
+                fallbackBg="#1f2937"
+                letter={exp.company.charAt(0)}
+              />
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
+                Edit
+              </span>
+            </button>
             <div className="flex-1 min-w-0">
               <p className="font-semibold">
                 <EditableText
@@ -617,20 +663,21 @@ export default function Profile() {
               <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
             )}
           <div className="flex gap-3">
-            <ImageUpload
-              src={edu.logo}
-              onChange={(dataUrl) => updateEducation(edu.id, { logo: dataUrl })}
-              ariaLabel={`Upload ${edu.school} logo`}
-              className="h-12 w-12 shrink-0 rounded-md"
+            <button
+              type="button"
+              aria-label={`View ${edu.school} logo`}
+              onClick={() => setLogoModal({ type: "education", id: edu.id })}
+              className="group relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded-md"
             >
-              {(src) => (
-                <EntryLogo
-                  src={src}
-                  fallbackBg="#facc15"
-                  letter={edu.school.charAt(0)}
-                />
-              )}
-            </ImageUpload>
+              <EntryLogo
+                src={edu.logo}
+                fallbackBg="#facc15"
+                letter={edu.school.charAt(0)}
+              />
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
+                Edit
+              </span>
+            </button>
             <div className="flex-1 min-w-0">
               <p className="font-semibold">
                 <EditableText
@@ -674,6 +721,49 @@ export default function Profile() {
           </div>
         ))}
       </SectionCard>
+
+      {logoModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={(e) => { if (e.target === e.currentTarget) setLogoModal(null); }}
+        >
+          <div className="li-card flex h-[460px] w-[720px] overflow-hidden">
+            {/* Left pane */}
+            <div className="relative flex flex-1 items-center justify-center bg-[#f4f2ee]">
+              {logoModalSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={logoModalSrc}
+                  alt=""
+                  className="max-h-full max-w-full object-contain p-6"
+                />
+              ) : (
+                <div className="flex h-24 w-24 items-center justify-center rounded-sm bg-zinc-200 text-4xl text-zinc-500">
+                  ?
+                </div>
+              )}
+              <div className="absolute bottom-4 left-4">
+                <button
+                  type="button"
+                  className="rounded-full bg-[var(--li-blue)] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[var(--li-blue-hover)]"
+                  onClick={() => logoModalFileInputRef.current?.click()}
+                >
+                  Upload photo
+                </button>
+                <input
+                  ref={logoModalFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoModalUpload}
+                  className="hidden"
+                />
+              </div>
+            </div>
+            {/* Right pane */}
+            <div className="w-72 border-l border-[var(--li-border)]" />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
