@@ -729,7 +729,14 @@ export default function Profile() {
         >
           <div className="li-card flex h-[460px] w-[720px] overflow-hidden">
             {/* Left pane */}
-            <div className="relative flex flex-1 items-center justify-center">
+            <div className="relative flex flex-1 flex-col">
+              <div className="px-6 pt-3 pb-3">
+                <h2 className="text-xl font-semibold">
+                  {logoModal?.type === "experience" ? "Company logo" : "Education logo"}
+                </h2>
+              </div>
+              <hr className="border-[var(--li-border)]" />
+              <div className="flex flex-1 items-center justify-center">
               {logoModalSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -742,7 +749,8 @@ export default function Profile() {
                   ?
                 </div>
               )}
-              <div className="absolute bottom-4 left-4">
+              </div>
+              <div className="px-6 pb-5">
                 <button
                   type="button"
                   className="rounded-full bg-[var(--li-blue)] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[var(--li-blue-hover)]"
