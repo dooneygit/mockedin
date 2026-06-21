@@ -12,6 +12,8 @@ MockedIn is a web-based profile mockup tool that lets users design and preview a
 
 Behavioral overlay for an AI coding agent.
 
+**Always:** Never read, print, or log `.env` or other files containing secrets/credentials.
+
 **Tradeoff:** These bias toward caution over speed. For trivial tasks, use judgment.
 
 ## 1. Think Before Coding
