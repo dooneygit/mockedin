@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(Get-ChildItem -Path \"D:\\\\Programming\\\\Dev\\\\mockedin\\\\src\" -Recurse -Directory)",
-      "Bash(Select-Object -First 20)"
+      "Bash(Select-Object -First 20)",
+      "WebFetch(domain:www.logo.dev)"
     ]
   }
 }
