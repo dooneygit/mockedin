@@ -233,17 +233,6 @@ export default function Profile() {
       : education.find((e) => e.id === logoModal.id)?.logo
     : undefined;
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<{ name: string; domain: string }[]>([]);
-  const [searchStatus, setSearchStatus] = useState<"idle" | "loading" | "error">("idle");
-
-  function openLogoModal(target: { type: "experience" | "education"; id: string }) {
-    setSearchQuery("");
-    setSearchResults([]);
-    setSearchStatus("idle");
-    setLogoModal(target);
-  }
-
   function addExperience() {
     setExperience((prev) => [
       {
@@ -328,6 +317,48 @@ export default function Profile() {
     reader.readAsDataURL(file);
     e.target.value = "";
   }
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{ name: string; domain: string }[]>([]);
+  const [searchStatus, setSearchStatus] = useState<"idle" | "loading" | "error">("idle");
+
+  function openLogoModal(target: { type: "experience" | "education"; id: string }) {
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchStatus("idle");
+    setLogoModal(target);
+  }
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setSearchResults([]);
+      setSearchStatus("idle");
+      return;
+    }
+
+    setSearchStatus("loading");
+    const controller = new AbortController();
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/logo-search?q=${encodeURIComponent(searchQuery)}`,
+          { signal: controller.signal}
+        );
+
+        const data = await res.json();
+        setSearchResults(data);
+        setSearchStatus("idle");
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") setSearchStatus("error");
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [searchQuery]);
 
   return (
     <main className="w-full max-w-4xl mx-auto py-6 px-4 space-y-2">
