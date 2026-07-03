@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useRef, useState, useEffect, type ChangeEvent, type ReactNode } from "react";
 
 type ExperienceEntry = {
   id: string;
@@ -191,6 +191,12 @@ const defaultComments: CommentEntry[] = [
   },
 ];
 
+const LOGO_DEV_PK = process.env.NEXT_PUBLIC_LOGO_DEV_PUBLISHABLE_KEY
+
+function logoDevImageUrl(domain: string, size = 200): string {
+  return `https://img.logo.dev/${domain}?token=${LOGO_DEV_PK}&size=${size}&format=png`
+}
+
 export default function Profile() {
   const [banner, setBanner] = useState<string | undefined>("/images/default-banner.webp");
   const [avatar, setAvatar] = useState<string | undefined>();
@@ -226,6 +232,17 @@ export default function Profile() {
       ? experience.find((e) => e.id === logoModal.id)?.logo
       : education.find((e) => e.id === logoModal.id)?.logo
     : undefined;
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{ name: string; domain: string }[]>([]);
+  const [searchStatus, setSearchStatus] = useState<"idle" | "loading" | "error">("idle");
+
+  function openLogoModal(target: { type: "experience" | "education"; id: string }) {
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchStatus("idle");
+    setLogoModal(target);
+  }
 
   function addExperience() {
     setExperience((prev) => [
@@ -454,7 +471,7 @@ export default function Profile() {
                   <button
                     type="button"
                     aria-label={`View ${currentCompany.company} logo`}
-                    onClick={() => setLogoModal({ type: "experience", id: currentCompany.id })}
+                    onClick={() => openLogoModal({ type: "experience", id: currentCompany.id })}
                     className="group relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-sm"
                   >
                     <EntryLogo
@@ -477,7 +494,7 @@ export default function Profile() {
                   <button
                     type="button"
                     aria-label={`View ${currentSchool.school} logo`}
-                    onClick={() => setLogoModal({ type: "education", id: currentSchool.id })}
+                    onClick={() => openLogoModal({ type: "education", id: currentSchool.id })}
                     className="group relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-sm"
                   >
                     <EntryLogo
@@ -599,7 +616,7 @@ export default function Profile() {
             <button
               type="button"
               aria-label={`View ${exp.company} logo`}
-              onClick={() => setLogoModal({ type: "experience", id: exp.id })}
+              onClick={() => openLogoModal({ type: "experience", id: exp.id })}
               className="group relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded-md"
             >
               <EntryLogo
@@ -666,7 +683,7 @@ export default function Profile() {
             <button
               type="button"
               aria-label={`View ${edu.school} logo`}
-              onClick={() => setLogoModal({ type: "education", id: edu.id })}
+              onClick={() => openLogoModal({ type: "education", id: edu.id })}
               className="group relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded-md"
             >
               <EntryLogo
