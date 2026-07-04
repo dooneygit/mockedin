@@ -439,7 +439,7 @@ export default function Profile() {
                   Contact info
                 </a>
               </p>
-              <p className="flex mt-1">
+              <div className="flex mt-1">
                 <div className="text-sm text-[var(--li-text-secondary)] w-48">
                   {showFollowers && (
                     <>
@@ -481,7 +481,7 @@ export default function Profile() {
                     Toggle connections
                   </button>
                 </div>
-              </p>
+              </div>
 
               <div className="mt-4 flex gap-2 flex-wrap">
                 <button className="rounded-full bg-[var(--li-blue)] hover:bg-[var(--li-blue-hover)] text-white font-semibold text-sm px-4 py-1.5">
@@ -816,7 +816,42 @@ export default function Profile() {
               </div>
             </div>
             {/* Right pane */}
-            <div className="w-82 border-l border-[var(--li-border)]" />
+            <div className="w-82 border-l border-[var(--li-border)] flex flex-col">
+              <input 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                className="w-full border-b border-[var(--li-border)] h-10 px-3 focus:outline-none"
+                placeholder="Search for a logo"
+              />
+              <div className="flex-1 overflow-y-auto">
+                {searchStatus === "loading" && <p className="p-3">Searching…</p>}
+                {searchStatus === "error" && <p className="p-3">Something went wrong</p>}
+                {searchStatus === "idle" &&
+                  searchQuery.trim() !== "" &&
+                  searchResults.length === 0 && <p className="p-3">No results</p>} 
+                {searchResults.map((r) => (
+                  <button 
+                    key={r.domain} 
+                    type="button"
+                    className="flex w-full items-center gap-3 border-b border-[var(--li-border)] p-2 text-left hover:bg-black/5">
+                    <img
+                      src={logoDevImageUrl(r.domain, 40)}
+                      alt=""
+                      className="h-10 w-10 shrink-0 rounded-sm object-contain"
+                    />
+                    <p className="truncate text-sm font-semibold">{r.name}</p>
+                  </button>
+                ))}
+              </div>
+              <a
+                href="https://logo.dev"
+                target="_blank"
+                rel="noopener"
+                className="shrink-0 border-t border-[var(--li-border)] p-2 text-center text-xs text-[var(--li-text-secondary)] hover:underline"
+              >
+                Logos provided by Logo.dev
+              </a>
+            </div> 
           </div>
         </div>
       )}
