@@ -360,6 +360,19 @@ export default function Profile() {
     };
   }, [searchQuery]);
 
+  function applyLogoResult(result: {name: string; domain: string }) {
+    if (!logoModal) return;
+    const logo = logoDevImageUrl(result.domain, 200);
+
+    if (logoModal.type === "experience") {
+      updateExperience(logoModal.id, { logo, company: result.name});
+    } else {
+      updateEducation(logoModal.id, {logo, school: result.name});
+    }
+
+    setLogoModal(null);
+  }
+
   return (
     <main className="w-full max-w-4xl mx-auto py-6 px-4 space-y-2">
       {/* Profile header card */}
@@ -833,7 +846,10 @@ export default function Profile() {
                   <button 
                     key={r.domain} 
                     type="button"
-                    className="flex w-full items-center gap-3 border-b border-[var(--li-border)] p-2 text-left hover:bg-black/5">
+                    className="flex w-full items-center gap-3 border-b border-[var(--li-border)] p-2 text-left hover:bg-black/5"
+                    onClick={() => applyLogoResult(r)}  
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={logoDevImageUrl(r.domain, 40)}
                       alt=""
