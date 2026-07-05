@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useRef, useState, useEffect, type ChangeEvent, type ReactNode } from "react";
 
 type ExperienceEntry = {
   id: string;
@@ -191,6 +191,12 @@ const defaultComments: CommentEntry[] = [
   },
 ];
 
+const LOGO_DEV_PK = process.env.NEXT_PUBLIC_LOGO_DEV_PUBLISHABLE_KEY
+
+function logoDevImageUrl(domain: string, size = 200): string {
+  return `https://img.logo.dev/${domain}?token=${LOGO_DEV_PK}&size=${size}&format=png`
+}
+
 export default function Profile() {
   const [banner, setBanner] = useState<string | undefined>("/images/default-banner.webp");
   const [avatar, setAvatar] = useState<string | undefined>();
@@ -215,8 +221,17 @@ export default function Profile() {
   const [comments, setComments] =
     useState<CommentEntry[]>(defaultComments);
 
+  const [logoModal, setLogoModal] = useState<{ type: "experience" | "education"; id: string } | null>(null);
+  const logoModalFileInputRef = useRef<HTMLInputElement>(null);
+
   const currentCompany = experience?.[0] ?? null;
   const currentSchool = education?.[0] ?? null;
+
+  const logoModalSrc = logoModal
+    ? logoModal.type === "experience"
+      ? experience.find((e) => e.id === logoModal.id)?.logo
+      : education.find((e) => e.id === logoModal.id)?.logo
+    : undefined;
 
   function addExperience() {
     setExperience((prev) => [
@@ -285,6 +300,77 @@ export default function Profile() {
 
   function removeComment(id: string) {
     setComments((prev) => prev.filter((c) => c.id !== id));
+  }
+
+  function handleLogoModalUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !logoModal) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== "string") return;
+      if (logoModal.type === "experience") {
+        updateExperience(logoModal.id, { logo: reader.result });
+      } else {
+        updateEducation(logoModal.id, { logo: reader.result });
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{ name: string; domain: string }[]>([]);
+  const [searchStatus, setSearchStatus] = useState<"idle" | "loading" | "error">("idle");
+
+  function openLogoModal(target: { type: "experience" | "education"; id: string }) {
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchStatus("idle");
+    setLogoModal(target);
+  }
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setSearchResults([]);
+      setSearchStatus("idle");
+      return;
+    }
+
+    setSearchStatus("loading");
+    const controller = new AbortController();
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/logo-search?q=${encodeURIComponent(searchQuery)}`,
+          { signal: controller.signal}
+        );
+
+        const data = await res.json();
+        setSearchResults(data);
+        setSearchStatus("idle");
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") setSearchStatus("error");
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [searchQuery]);
+
+  function applyLogoResult(result: {name: string; domain: string }) {
+    if (!logoModal) return;
+    const logo = logoDevImageUrl(result.domain, 200);
+
+    if (logoModal.type === "experience") {
+      updateExperience(logoModal.id, { logo, company: result.name});
+    } else {
+      updateEducation(logoModal.id, {logo, school: result.name});
+    }
+
+    setLogoModal(null);
   }
 
   return (
@@ -366,7 +452,7 @@ export default function Profile() {
                   Contact info
                 </a>
               </p>
-              <p className="flex mt-1">
+              <div className="flex mt-1">
                 <div className="text-sm text-[var(--li-text-secondary)] w-48">
                   {showFollowers && (
                     <>
@@ -408,7 +494,7 @@ export default function Profile() {
                     Toggle connections
                   </button>
                 </div>
-              </p>
+              </div>
 
               <div className="mt-4 flex gap-2 flex-wrap">
                 <button className="rounded-full bg-[var(--li-blue)] hover:bg-[var(--li-blue-hover)] text-white font-semibold text-sm px-4 py-1.5">
@@ -426,12 +512,22 @@ export default function Profile() {
             <div className="hidden sm:flex w-[260px] shrink-0 flex-col gap-2 items-start text-sm">
               {currentCompany && (
                 <div className="flex items-center gap-2 w-full">
-                  <EntryLogo
-                    src={currentCompany.logo}
-                    fallbackBg="#1f2937"
-                    letter={currentCompany.company.charAt(0)}
-                    size="sm"
-                  />
+                  <button
+                    type="button"
+                    aria-label={`View ${currentCompany.company} logo`}
+                    onClick={() => openLogoModal({ type: "experience", id: currentCompany.id })}
+                    className="group relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-sm"
+                  >
+                    <EntryLogo
+                      src={currentCompany.logo}
+                      fallbackBg="#1f2937"
+                      letter={currentCompany.company.charAt(0)}
+                      size="sm"
+                    />
+                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
+                      Edit
+                    </span>
+                  </button>
                   <span className="font-semibold min-w-0 break-words">
                     {currentCompany.company}
                   </span>
@@ -439,12 +535,22 @@ export default function Profile() {
               )}
               {currentSchool && (
                 <div className="flex items-center gap-2 w-full">
-                  <EntryLogo
-                    src={currentSchool.logo}
-                    fallbackBg="#facc15"
-                    letter={currentSchool.school.charAt(0)}
-                    size="sm"
-                  />
+                  <button
+                    type="button"
+                    aria-label={`View ${currentSchool.school} logo`}
+                    onClick={() => openLogoModal({ type: "education", id: currentSchool.id })}
+                    className="group relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-sm"
+                  >
+                    <EntryLogo
+                      src={currentSchool.logo}
+                      fallbackBg="#facc15"
+                      letter={currentSchool.school.charAt(0)}
+                      size="sm"
+                    />
+                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
+                      Edit
+                    </span>
+                  </button>
                   <span className="font-semibold min-w-0 break-words">{currentSchool.school}</span>
                 </div>
               )}
@@ -492,8 +598,8 @@ export default function Profile() {
         </p>
         {comments.length === 0 ? (
           <>
-            <p className="mt-4 font-semibold">{firstName} has not made recent posts</p>
-            <p className="mt-1 mb-4 text-sm text-[var(--li-text-secondary)]">
+            <h2 className="text-xl font-semibold">{firstName} has not made recent posts</h2>
+            <p className="mb-4 text-sm">
               Recent posts {firstName} shares will be displayed here.
             </p>
           </>
@@ -551,20 +657,21 @@ export default function Profile() {
               <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
             )}
           <div className="flex gap-3">
-            <ImageUpload
-              src={exp.logo}
-              onChange={(dataUrl) => updateExperience(exp.id, { logo: dataUrl })}
-              ariaLabel={`Upload ${exp.company} logo`}
-              className="h-12 w-12 shrink-0 rounded-md"
+            <button
+              type="button"
+              aria-label={`View ${exp.company} logo`}
+              onClick={() => openLogoModal({ type: "experience", id: exp.id })}
+              className="group relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded-md"
             >
-              {(src) => (
-                <EntryLogo
-                  src={src}
-                  fallbackBg="#1f2937"
-                  letter={exp.company.charAt(0)}
-                />
-              )}
-            </ImageUpload>
+              <EntryLogo
+                src={exp.logo}
+                fallbackBg="#1f2937"
+                letter={exp.company.charAt(0)}
+              />
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
+                Edit
+              </span>
+            </button>
             <div className="flex-1 min-w-0">
               <p className="font-semibold">
                 <EditableText
@@ -617,20 +724,21 @@ export default function Profile() {
               <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
             )}
           <div className="flex gap-3">
-            <ImageUpload
-              src={edu.logo}
-              onChange={(dataUrl) => updateEducation(edu.id, { logo: dataUrl })}
-              ariaLabel={`Upload ${edu.school} logo`}
-              className="h-12 w-12 shrink-0 rounded-md"
+            <button
+              type="button"
+              aria-label={`View ${edu.school} logo`}
+              onClick={() => openLogoModal({ type: "education", id: edu.id })}
+              className="group relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded-md"
             >
-              {(src) => (
-                <EntryLogo
-                  src={src}
-                  fallbackBg="#facc15"
-                  letter={edu.school.charAt(0)}
-                />
-              )}
-            </ImageUpload>
+              <EntryLogo
+                src={edu.logo}
+                fallbackBg="#facc15"
+                letter={edu.school.charAt(0)}
+              />
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
+                Edit
+              </span>
+            </button>
             <div className="flex-1 min-w-0">
               <p className="font-semibold">
                 <EditableText
@@ -674,6 +782,95 @@ export default function Profile() {
           </div>
         ))}
       </SectionCard>
+
+      {logoModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={(e) => { if (e.target === e.currentTarget) setLogoModal(null); }}
+        >
+          <div className="li-card flex h-[460px] w-[720px] overflow-hidden">
+            {/* Left pane */}
+            <div className="relative flex flex-1 flex-col">
+              <div className="px-6 pt-3 pb-3">
+                <h2 className="text-xl font-semibold">
+                  {logoModal?.type === "experience" ? "Company logo" : "Education logo"}
+                </h2>
+              </div>
+              <hr className="border-[var(--li-border)]" />
+              <div className="flex flex-1 items-center justify-center">
+              {logoModalSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={logoModalSrc}
+                  alt=""
+                  className="max-h-75 max-w-75 object-contain"
+                />
+              ) : (
+                <div className="flex h-24 w-24 items-center justify-center rounded-sm bg-zinc-200 text-4xl text-zinc-500">
+                  ?
+                </div>
+              )}
+              </div>
+              <div className="px-6 pb-5">
+                <button
+                  type="button"
+                  className="rounded-full bg-[var(--li-blue)] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[var(--li-blue-hover)]"
+                  onClick={() => logoModalFileInputRef.current?.click()}
+                >
+                  Upload photo
+                </button>
+                <input
+                  ref={logoModalFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoModalUpload}
+                  className="hidden"
+                />
+              </div>
+            </div>
+            {/* Right pane */}
+            <div className="w-82 border-l border-[var(--li-border)] flex flex-col">
+              <input 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                className="w-full border-b border-[var(--li-border)] h-10 px-3 focus:outline-none"
+                placeholder="Search for a logo"
+              />
+              <div className="flex-1 overflow-y-auto">
+                {searchStatus === "loading" && <p className="p-3">Searching…</p>}
+                {searchStatus === "error" && <p className="p-3">Something went wrong</p>}
+                {searchStatus === "idle" &&
+                  searchQuery.trim() !== "" &&
+                  searchResults.length === 0 && <p className="p-3">No results</p>} 
+                {searchResults.map((r) => (
+                  <button 
+                    key={r.domain} 
+                    type="button"
+                    className="flex w-full items-center gap-3 border-b border-[var(--li-border)] p-2 text-left hover:bg-black/5"
+                    onClick={() => applyLogoResult(r)}  
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={logoDevImageUrl(r.domain, 40)}
+                      alt=""
+                      className="h-10 w-10 shrink-0 rounded-sm object-contain"
+                    />
+                    <p className="truncate text-sm font-semibold">{r.name}</p>
+                  </button>
+                ))}
+              </div>
+              <a
+                href="https://logo.dev"
+                target="_blank"
+                rel="noopener"
+                className="shrink-0 border-t border-[var(--li-border)] p-2 text-center text-xs text-[var(--li-text-secondary)] hover:underline"
+              >
+                Logos provided by Logo.dev
+              </a>
+            </div> 
+          </div>
+        </div>
+      )}
     </main>
   );
 }
