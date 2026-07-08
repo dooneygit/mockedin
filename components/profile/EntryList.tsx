@@ -58,6 +58,7 @@ export function EntryList({
                 <EditableText
                   ariaLabel={titleLabel}
                   value={entry.title}
+                  fallback={titleLabel}
                   onChange={(v) => onUpdate(entry.id, { title: v })}
                 />
               </p>
@@ -65,6 +66,7 @@ export function EntryList({
                 <EditableText
                   ariaLabel={subtitleLabel}
                   value={entry.subtitle}
+                  fallback={subtitleLabel}
                   onChange={(v) => onUpdate(entry.id, { subtitle: v })}
                 />
               </p>
@@ -72,6 +74,7 @@ export function EntryList({
                 <EditableText
                   ariaLabel="Date range"
                   value={entry.dateRange}
+                  fallback="Start - End"
                   onChange={(v) => onUpdate(entry.id, { dateRange: v })}
                 />
               </p>
@@ -79,6 +82,7 @@ export function EntryList({
                 <EditableText
                   ariaLabel="Description"
                   value={entry.description}
+                  fallback="Description"
                   onChange={(v) => onUpdate(entry.id, { description: v })}
                   multiline
                 />

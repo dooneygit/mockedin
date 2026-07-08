@@ -23,7 +23,7 @@ const defaultExperience: Entry[] = [
     id: "exp-1",
     subtitle: "Company",
     title: "Role",
-    dateRange: "Start to End",
+    dateRange: "Start - End",
     description: "Description",
     logo: "/images/default-logo.webp",
   }
@@ -33,8 +33,8 @@ const defaultEducation: Entry[] = [
   {
     id: "edu-1",
     title: "School",
-    subtitle: "Field of Study",
-    dateRange: "Start to End",
+    subtitle: "Field of study",
+    dateRange: "Start - End",
     description: "Description",
     logo: "/images/default-logo.webp",
   }
@@ -209,11 +209,13 @@ export default function Profile() {
                 <EditableText
                   ariaLabel="First name"
                   value={firstName}
+                  fallback="First"
                   onChange={setFirstName}
                 />{" "}
                 <EditableText
                   ariaLabel="Last name"
                   value={lastName}
+                  fallback="Last"
                   onChange={setLastName}
                 />
               </h1>
@@ -221,6 +223,7 @@ export default function Profile() {
                 <EditableText
                   ariaLabel="Headline"
                   value={headline}
+                  fallback="Headline"
                   onChange={setHeadline}
                 />
               </p>
@@ -228,6 +231,7 @@ export default function Profile() {
                 <EditableText
                   ariaLabel="Location"
                   value={location}
+                  fallback="Country"
                   onChange={setLocation}
                 />
                 <span className="mx-1">·</span>
@@ -246,6 +250,7 @@ export default function Profile() {
                       <EditableText
                         ariaLabel="Follower count"
                         value={followers}
+                        fallback="0"
                         onChange={setFollowers}
                         className="text-[var(--li-text-secondary)]"
                       />{" "}
@@ -258,6 +263,7 @@ export default function Profile() {
                       <EditableText
                         ariaLabel="Connection count"
                         value={connections}
+                        fallback="0"
                         onChange={setConnections}
                         className="font-semibold text-[var(--li-text-secondary)]"
                       />{" "}
@@ -350,7 +356,12 @@ export default function Profile() {
       <section className="li-card p-6">
         <h2 className="text-xl font-semibold mb-2">About</h2>
         <p className="text-sm text-[var(--li-text-secondary)]">
-          <EditableText ariaLabel="About" value={about} onChange={setAbout} />
+          <EditableText
+            ariaLabel="About"
+            value={about}
+            fallback="About"
+            onChange={setAbout}
+          />
         </p>
       </section>
 
@@ -379,6 +390,7 @@ export default function Profile() {
           <EditableText
             ariaLabel="Follower count"
             value={followers}
+            fallback="0"
             onChange={setFollowers}
           />{" "}
           followers
@@ -406,6 +418,7 @@ export default function Profile() {
                         ariaLabel="When"
                         className="text-[var(--li-text-secondary)]"
                         value={cmt.when}
+                        fallback="1mo"
                         onChange={(v) => updateComment(cmt.id, { when: v })}
                       />
                     </p>
@@ -413,6 +426,7 @@ export default function Profile() {
                       <EditableText
                         ariaLabel="Comment body"
                         value={cmt.body}
+                        fallback="Comment"
                         onChange={(v) => updateComment(cmt.id, { body: v })}
                         multiline
                       />
