@@ -1,24 +1,16 @@
 "use client";
 
-import { useRef, useState, useEffect, type ChangeEvent, type ReactNode } from "react";
+import { useState } from "react";
 
-type ExperienceEntry = {
-  id: string;
-  company: string;
-  role: string;
-  dateRange: string;
-  description: string;
-  logo?: string;
-};
-
-type EducationEntry = {
-  id: string;
-  school: string;
-  field: string;
-  dateRange: string;
-  description: string;
-  logo?: string;
-};
+import { EditableText } from "@/components/profile/EditableText";
+import { EntryList } from "@/components/profile/EntryList";
+import { EntryLogo } from "@/components/profile/EntryLogo";
+import { ImageUpload } from "@/components/profile/ImageUpload";
+import { LogoModal } from "@/components/profile/LogoModal";
+import { SectionCard } from "@/components/profile/SectionCard";
+import { useEntries } from "@/hooks/useEntries";
+import { logoDevImageUrl, type LogoResult } from "@/hooks/useLogoSearch";
+import type { Entry, LogoTarget } from "@/types/profile";
 
 type CommentEntry = {
   id: string;
@@ -26,157 +18,22 @@ type CommentEntry = {
   body: string;
 };
 
-function EditableText({
-  value,
-  onChange,
-  className,
-  multiline = false,
-  ariaLabel,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  className?: string;
-  multiline?: boolean;
-  ariaLabel: string;
-}) {
-  return (
-    <span
-      role="textbox"
-      aria-label={ariaLabel}
-      contentEditable
-      suppressContentEditableWarning
-      className={`li-editable inline-block ${className ?? ""}`}
-      onBlur={(e) => onChange(e.currentTarget.textContent ?? "")}
-      onKeyDown={(e) => {
-        if (!multiline && e.key === "Enter") {
-          e.preventDefault();
-          (e.target as HTMLElement).blur();
-        }
-      }}
-    >
-      {value}
-    </span>
-  );
-}
-
-function ImageUpload({
-  src,
-  onChange,
-  children,
-  className,
-  ariaLabel,
-}: {
-  src?: string;
-  onChange: (dataUrl: string) => void;
-  children: (src: string | undefined) => ReactNode;
-  className?: string;
-  ariaLabel: string;
-}) {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  function handleFile(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") onChange(reader.result);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
-  }
-
-  return (
-    <button
-      type="button"
-      aria-label={ariaLabel}
-      onClick={() => inputRef.current?.click()}
-      className={`group relative cursor-pointer overflow-hidden ${className ?? ""}`}
-    >
-      {children(src)}
-      <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
-        Click to upload
-      </span>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFile}
-        className="hidden"
-      />
-    </button>
-  );
-}
-
-function SectionCard({
-  title,
-  onAdd,
-  children,
-}: {
-  title: string;
-  onAdd: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <section className="li-card p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">{title}</h2>
-        <button
-          type="button"
-          aria-label={`Add ${title.toLowerCase()}`}
-          onClick={onAdd}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
-        >
-          +
-        </button>
-      </div>
-      <div className="space-y-5">{children}</div>
-    </section>
-  );
-}
-
-function EntryLogo({
-  src,
-  fallbackBg,
-  letter,
-  size = "lg",
-}: {
-  src?: string;
-  fallbackBg: string;
-  letter: string;
-  size?: "sm" | "lg";
-}) {
-  const dims = size === "sm" ? "h-8 w-8 text-sm" : "h-12 w-12";
-  return (
-    <div
-      className={`flex ${dims} shrink-0 items-center justify-center rounded-sm text-white font-semibold overflow-hidden`}
-      style={{ background: src ? "transparent" : fallbackBg }}
-    >
-      {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt="" className="h-full w-full object-cover" />
-      ) : (
-        letter
-      )}
-    </div>
-  );
-}
-
-const defaultExperience: ExperienceEntry[] = [
+const defaultExperience: Entry[] = [
   {
     id: "exp-1",
-    company: "Company",
-    role: "Role",
+    subtitle: "Company",
+    title: "Role",
     dateRange: "Start to End",
     description: "Description",
     logo: "/images/default-logo.webp",
   }
 ];
 
-const defaultEducation: EducationEntry[] = [
+const defaultEducation: Entry[] = [
   {
     id: "edu-1",
-    school: "School",
-    field: "Field of Study",
+    title: "School",
+    subtitle: "Field of Study",
     dateRange: "Start to End",
     description: "Description",
     logo: "/images/default-logo.webp",
@@ -190,12 +47,6 @@ const defaultComments: CommentEntry[] = [
     body: "Comment",
   },
 ];
-
-const LOGO_DEV_PK = process.env.NEXT_PUBLIC_LOGO_DEV_PUBLISHABLE_KEY
-
-function logoDevImageUrl(domain: string, size = 200): string {
-  return `https://img.logo.dev/${domain}?token=${LOGO_DEV_PK}&size=${size}&format=png`
-}
 
 export default function Profile() {
   const [banner, setBanner] = useState<string | undefined>("/images/default-banner.webp");
@@ -214,15 +65,22 @@ export default function Profile() {
 
   const [about, setAbout] = useState("About");
 
-  const [experience, setExperience] =
-    useState<ExperienceEntry[]>(defaultExperience);
-  const [education, setEducation] =
-    useState<EducationEntry[]>(defaultEducation);
+  const {
+    entries: experience,
+    add: addExperienceEntry,
+    update: updateExperience,
+    remove: removeExperience,
+  } = useEntries(defaultExperience);
+  const {
+    entries: education,
+    add: addEducationEntry,
+    update: updateEducation,
+    remove: removeEducation,
+  } = useEntries(defaultEducation);
   const [comments, setComments] =
     useState<CommentEntry[]>(defaultComments);
 
-  const [logoModal, setLogoModal] = useState<{ type: "experience" | "education"; id: string } | null>(null);
-  const logoModalFileInputRef = useRef<HTMLInputElement>(null);
+  const [logoModal, setLogoModal] = useState<LogoTarget | null>(null);
 
   const currentCompany = experience?.[0] ?? null;
   const currentSchool = education?.[0] ?? null;
@@ -234,51 +92,25 @@ export default function Profile() {
     : undefined;
 
   function addExperience() {
-    setExperience((prev) => [
-      {
-        id: `exp-${Date.now()}`,
-        company: "Company",
-        role: "Role",
-        dateRange: "Start - End",
-        description: "Description",
-        logo: "/images/default-logo.webp",
-      },
-      ...prev,
-    ]);
+    addExperienceEntry({
+      id: `exp-${Date.now()}`,
+      subtitle: "Company",
+      title: "Role",
+      dateRange: "Start - End",
+      description: "Description",
+      logo: "/images/default-logo.webp",
+    });
   }
 
   function addEducation() {
-    setEducation((prev) => [
-      {
-        id: `edu-${Date.now()}`,
-        school: "School",
-        field: "Field of study",
-        dateRange: "Start - End",
-        description: "Description",
-        logo: "/images/default-logo.webp",
-      },
-      ...prev,
-    ]);
-  }
-
-  function updateExperience(id: string, patch: Partial<ExperienceEntry>) {
-    setExperience((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, ...patch } : e)),
-    );
-  }
-
-  function updateEducation(id: string, patch: Partial<EducationEntry>) {
-    setEducation((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, ...patch } : e)),
-    );
-  }
-
-  function removeExperience(id: string) {
-    setExperience((prev) => prev.filter((e) => e.id !== id));
-  }
-
-  function removeEducation(id: string) {
-    setEducation((prev) => prev.filter((e) => e.id !== id));
+    addEducationEntry({
+      id: `edu-${Date.now()}`,
+      title: "School",
+      subtitle: "Field of study",
+      dateRange: "Start - End",
+      description: "Description",
+      logo: "/images/default-logo.webp",
+    });
   }
 
   function addComment() {
@@ -302,72 +134,27 @@ export default function Profile() {
     setComments((prev) => prev.filter((c) => c.id !== id));
   }
 
-  function handleLogoModalUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !logoModal) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result !== "string") return;
-      if (logoModal.type === "experience") {
-        updateExperience(logoModal.id, { logo: reader.result });
-      } else {
-        updateEducation(logoModal.id, { logo: reader.result });
-      }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
-  }
-  
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<{ name: string; domain: string }[]>([]);
-  const [searchStatus, setSearchStatus] = useState<"idle" | "loading" | "error">("idle");
-
-  function openLogoModal(target: { type: "experience" | "education"; id: string }) {
-    setSearchQuery("");
-    setSearchResults([]);
-    setSearchStatus("idle");
+  function openLogoModal(target: LogoTarget) {
     setLogoModal(target);
   }
 
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setSearchResults([]);
-      setSearchStatus("idle");
-      return;
+  function handleLogoModalUpload(logo: string) {
+    if (!logoModal) return;
+    if (logoModal.type === "experience") {
+      updateExperience(logoModal.id, { logo });
+    } else {
+      updateEducation(logoModal.id, { logo });
     }
+  }
 
-    setSearchStatus("loading");
-    const controller = new AbortController();
-
-    const timer = setTimeout(async () => {
-      try {
-        const res = await fetch(
-          `/api/logo-search?q=${encodeURIComponent(searchQuery)}`,
-          { signal: controller.signal}
-        );
-
-        const data = await res.json();
-        setSearchResults(data);
-        setSearchStatus("idle");
-      } catch (err) {
-        if ((err as Error).name !== "AbortError") setSearchStatus("error");
-      }
-    }, 300);
-
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [searchQuery]);
-
-  function applyLogoResult(result: {name: string; domain: string }) {
+  function applyLogoResult(result: LogoResult) {
     if (!logoModal) return;
     const logo = logoDevImageUrl(result.domain, 200);
 
     if (logoModal.type === "experience") {
-      updateExperience(logoModal.id, { logo, company: result.name});
+      updateExperience(logoModal.id, { logo, subtitle: result.name});
     } else {
-      updateEducation(logoModal.id, {logo, school: result.name});
+      updateEducation(logoModal.id, {logo, title: result.name});
     }
 
     setLogoModal(null);
@@ -514,14 +301,14 @@ export default function Profile() {
                 <div className="flex items-center gap-2 w-full">
                   <button
                     type="button"
-                    aria-label={`View ${currentCompany.company} logo`}
+                    aria-label={`View ${currentCompany.subtitle} logo`}
                     onClick={() => openLogoModal({ type: "experience", id: currentCompany.id })}
                     className="group relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-sm"
                   >
                     <EntryLogo
                       src={currentCompany.logo}
                       fallbackBg="#1f2937"
-                      letter={currentCompany.company.charAt(0)}
+                      letter={currentCompany.subtitle.charAt(0)}
                       size="sm"
                     />
                     <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
@@ -529,7 +316,7 @@ export default function Profile() {
                     </span>
                   </button>
                   <span className="font-semibold min-w-0 break-words">
-                    {currentCompany.company}
+                    {currentCompany.subtitle}
                   </span>
                 </div>
               )}
@@ -537,21 +324,21 @@ export default function Profile() {
                 <div className="flex items-center gap-2 w-full">
                   <button
                     type="button"
-                    aria-label={`View ${currentSchool.school} logo`}
+                    aria-label={`View ${currentSchool.title} logo`}
                     onClick={() => openLogoModal({ type: "education", id: currentSchool.id })}
                     className="group relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-sm"
                   >
                     <EntryLogo
                       src={currentSchool.logo}
                       fallbackBg="#facc15"
-                      letter={currentSchool.school.charAt(0)}
+                      letter={currentSchool.title.charAt(0)}
                       size="sm"
                     />
                     <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
                       Edit
                     </span>
                   </button>
-                  <span className="font-semibold min-w-0 break-words">{currentSchool.school}</span>
+                  <span className="font-semibold min-w-0 break-words">{currentSchool.title}</span>
                 </div>
               )}
             </div>
@@ -651,225 +438,44 @@ export default function Profile() {
 
       {/* Experience */}
       <SectionCard title="Experience" onAdd={addExperience}>
-        {experience.map((exp, i) => (
-          <div key={exp.id}>
-            {i > 0 && (
-              <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
-            )}
-          <div className="flex gap-3">
-            <button
-              type="button"
-              aria-label={`View ${exp.company} logo`}
-              onClick={() => openLogoModal({ type: "experience", id: exp.id })}
-              className="group relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded-md"
-            >
-              <EntryLogo
-                src={exp.logo}
-                fallbackBg="#1f2937"
-                letter={exp.company.charAt(0)}
-              />
-              <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
-                Edit
-              </span>
-            </button>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold">
-                <EditableText
-                  ariaLabel="Role"
-                  value={exp.role}
-                  onChange={(v) => updateExperience(exp.id, { role: v })}
-                />
-              </p>
-              <p className="text-sm">
-                <EditableText
-                  ariaLabel="Company"
-                  value={exp.company}
-                  onChange={(v) => updateExperience(exp.id, { company: v })}
-                />
-              </p>
-              <p className="text-sm text-[var(--li-text-secondary)]">
-                <EditableText
-                  ariaLabel="Date range"
-                  value={exp.dateRange}
-                  onChange={(v) => updateExperience(exp.id, { dateRange: v })}
-                />
-              </p>
-              <p className="text-sm mt-2">
-                <EditableText
-                  ariaLabel="Description"
-                  value={exp.description}
-                  onChange={(v) => updateExperience(exp.id, { description: v })}
-                  multiline
-                />
-              </p>
-            </div>
-            <button
-              type="button"
-              aria-label="Remove experience"
-              onClick={() => removeExperience(exp.id)}
-              className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
-            >
-              −
-            </button>
-          </div>
-          </div>
-        ))}
+        <EntryList
+          entries={experience}
+          fallbackBg="#1f2937"
+          logoNameField="subtitle"
+          titleLabel="Role"
+          subtitleLabel="Company"
+          removeLabel="Remove experience"
+          targetType="experience"
+          onLogoClick={openLogoModal}
+          onUpdate={updateExperience}
+          onRemove={removeExperience}
+        />
       </SectionCard>
 
       {/* Education */}
       <SectionCard title="Education" onAdd={addEducation}>
-        {education.map((edu, i) => (
-          <div key={edu.id}>
-            {i > 0 && (
-              <hr style={{ border: "none", borderTop: "1px solid #e9e5df" }} className="mb-5" />
-            )}
-          <div className="flex gap-3">
-            <button
-              type="button"
-              aria-label={`View ${edu.school} logo`}
-              onClick={() => openLogoModal({ type: "education", id: edu.id })}
-              className="group relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded-md"
-            >
-              <EntryLogo
-                src={edu.logo}
-                fallbackBg="#facc15"
-                letter={edu.school.charAt(0)}
-              />
-              <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
-                Edit
-              </span>
-            </button>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold">
-                <EditableText
-                  ariaLabel="School"
-                  value={edu.school}
-                  onChange={(v) => updateEducation(edu.id, { school: v })}
-                />
-              </p>
-              <p className="text-sm">
-                <EditableText
-                  ariaLabel="Field of study"
-                  value={edu.field}
-                  onChange={(v) => updateEducation(edu.id, { field: v })}
-                />
-              </p>
-              <p className="text-sm text-[var(--li-text-secondary)]">
-                <EditableText
-                  ariaLabel="Date range"
-                  value={edu.dateRange}
-                  onChange={(v) => updateEducation(edu.id, { dateRange: v })}
-                />
-              </p>
-              <p className="text-sm mt-2">
-                <EditableText
-                  ariaLabel="Description"
-                  value={edu.description}
-                  onChange={(v) => updateEducation(edu.id, { description: v })}
-                  multiline
-                />
-              </p>
-            </div>
-            <button
-              type="button"
-              aria-label="Remove education"
-              onClick={() => removeEducation(edu.id)}
-              className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
-            >
-              −
-            </button>
-          </div>
-          </div>
-        ))}
+        <EntryList
+          entries={education}
+          fallbackBg="#facc15"
+          logoNameField="title"
+          titleLabel="School"
+          subtitleLabel="Field of study"
+          removeLabel="Remove education"
+          targetType="education"
+          onLogoClick={openLogoModal}
+          onUpdate={updateEducation}
+          onRemove={removeEducation}
+        />
       </SectionCard>
 
       {logoModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={(e) => { if (e.target === e.currentTarget) setLogoModal(null); }}
-        >
-          <div className="li-card flex h-[460px] w-[720px] overflow-hidden">
-            {/* Left pane */}
-            <div className="relative flex flex-1 flex-col">
-              <div className="px-6 pt-3 pb-3">
-                <h2 className="text-xl font-semibold">
-                  {logoModal?.type === "experience" ? "Company logo" : "Education logo"}
-                </h2>
-              </div>
-              <hr className="border-[var(--li-border)]" />
-              <div className="flex flex-1 items-center justify-center">
-              {logoModalSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={logoModalSrc}
-                  alt=""
-                  className="max-h-75 max-w-75 object-contain"
-                />
-              ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-sm bg-zinc-200 text-4xl text-zinc-500">
-                  ?
-                </div>
-              )}
-              </div>
-              <div className="px-6 pb-5">
-                <button
-                  type="button"
-                  className="rounded-full bg-[var(--li-blue)] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[var(--li-blue-hover)]"
-                  onClick={() => logoModalFileInputRef.current?.click()}
-                >
-                  Upload photo
-                </button>
-                <input
-                  ref={logoModalFileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoModalUpload}
-                  className="hidden"
-                />
-              </div>
-            </div>
-            {/* Right pane */}
-            <div className="w-82 border-l border-[var(--li-border)] flex flex-col">
-              <input 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                className="w-full border-b border-[var(--li-border)] h-10 px-3 focus:outline-none"
-                placeholder="Search for a logo"
-              />
-              <div className="flex-1 overflow-y-auto">
-                {searchStatus === "loading" && <p className="p-3">Searching…</p>}
-                {searchStatus === "error" && <p className="p-3">Something went wrong</p>}
-                {searchStatus === "idle" &&
-                  searchQuery.trim() !== "" &&
-                  searchResults.length === 0 && <p className="p-3">No results</p>} 
-                {searchResults.map((r) => (
-                  <button 
-                    key={r.domain} 
-                    type="button"
-                    className="flex w-full items-center gap-3 border-b border-[var(--li-border)] p-2 text-left hover:bg-black/5"
-                    onClick={() => applyLogoResult(r)}  
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={logoDevImageUrl(r.domain, 40)}
-                      alt=""
-                      className="h-10 w-10 shrink-0 rounded-sm object-contain"
-                    />
-                    <p className="truncate text-sm font-semibold">{r.name}</p>
-                  </button>
-                ))}
-              </div>
-              <a
-                href="https://logo.dev"
-                target="_blank"
-                rel="noopener"
-                className="shrink-0 border-t border-[var(--li-border)] p-2 text-center text-xs text-[var(--li-text-secondary)] hover:underline"
-              >
-                Logos provided by Logo.dev
-              </a>
-            </div> 
-          </div>
-        </div>
+        <LogoModal
+          target={logoModal}
+          src={logoModalSrc}
+          onClose={() => setLogoModal(null)}
+          onUpload={handleLogoModalUpload}
+          onApply={applyLogoResult}
+        />
       )}
     </main>
   );
