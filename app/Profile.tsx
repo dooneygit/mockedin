@@ -48,6 +48,43 @@ const defaultComments: CommentEntry[] = [
   },
 ];
 
+function EyeIcon() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+    >
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+    >
+      <path d="M9.9 5.2A9.6 9.6 0 0 1 12 5c6.5 0 10 7 10 7a17.3 17.3 0 0 1-3.2 4.1M6.2 6.2A17.3 17.3 0 0 0 2 12s3.5 7 10 7a9.6 9.6 0 0 0 4.2-.9" />
+      <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+      <path d="m3 3 18 18" />
+    </svg>
+  );
+}
+
 export default function Profile() {
   const [banner, setBanner] = useState<string | undefined>("/images/default-banner.webp");
   const [avatar, setAvatar] = useState<string | undefined>();
@@ -81,6 +118,7 @@ export default function Profile() {
     useState<CommentEntry[]>(defaultComments);
 
   const [logoModal, setLogoModal] = useState<LogoTarget | null>(null);
+  const [showControls, setShowControls] = useState(true);
 
   const currentCompany = experience?.[0] ?? null;
   const currentSchool = education?.[0] ?? null;
@@ -162,6 +200,18 @@ export default function Profile() {
 
   return (
     <main className="w-full max-w-4xl mx-auto py-6 px-4 space-y-2">
+      <div className="flex justify-end">
+        <button
+          type="button"
+          aria-pressed={!showControls}
+          onClick={() => setShowControls((v) => !v)}
+          className="mb-2 flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5"
+        >
+          {showControls ? <EyeIcon /> : <EyeOffIcon />}
+          Toggle customization
+        </button>
+      </div>
+
       {/* Profile header card */}
       <section className="li-card overflow-hidden">
         <ImageUpload
@@ -271,22 +321,24 @@ export default function Profile() {
                     </>
                   )}
                 </div>
-                <div className="flex gap-3 text-xs text-[var(--li-text-secondary)] shrink-0 whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => { if (showConnections) setShowFollowers((v) => !v); }}
-                    className="hover:underline font-semibold text-[var(--li-text-secondary)]"
-                  >
-                    Toggle followers
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { if (showFollowers) setShowConnections((v) => !v); }}
-                    className="hover:underline font-semibold text-[var(--li-text-secondary)]"
-                  >
-                    Toggle connections
-                  </button>
-                </div>
+                {showControls && (
+                  <div className="flex gap-3 text-xs text-[var(--li-text-secondary)] shrink-0 whitespace-nowrap">
+                    <button
+                      type="button"
+                      onClick={() => { if (showConnections) setShowFollowers((v) => !v); }}
+                      className="hover:underline font-semibold text-[var(--li-text-secondary)]"
+                    >
+                      Toggle followers
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { if (showFollowers) setShowConnections((v) => !v); }}
+                      className="hover:underline font-semibold text-[var(--li-text-secondary)]"
+                    >
+                      Toggle connections
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="mt-4 flex gap-2 flex-wrap">
@@ -370,14 +422,16 @@ export default function Profile() {
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Activity</h2>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Add comment"
-              onClick={addComment}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
-            >
-              +
-            </button>
+            {showControls && (
+              <button
+                type="button"
+                aria-label="Add comment"
+                onClick={addComment}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+              >
+                +
+              </button>
+            )}
             <button
               type="button"
               className="rounded-full border border-[var(--li-blue)] text-[var(--li-blue)] font-semibold text-sm px-4 py-1 hover:bg-[var(--li-blue)]/10"
@@ -432,14 +486,16 @@ export default function Profile() {
                       />
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    aria-label="Remove comment"
-                    onClick={() => removeComment(cmt.id)}
-                    className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
-                  >
-                    −
-                  </button>
+                  {showControls && (
+                    <button
+                      type="button"
+                      aria-label="Remove comment"
+                      onClick={() => removeComment(cmt.id)}
+                      className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+                    >
+                      −
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -451,7 +507,7 @@ export default function Profile() {
       </section>
 
       {/* Experience */}
-      <SectionCard title="Experience" onAdd={addExperience}>
+      <SectionCard title="Experience" onAdd={addExperience} showControls={showControls}>
         <EntryList
           entries={experience}
           fallbackBg="#1f2937"
@@ -460,6 +516,7 @@ export default function Profile() {
           subtitleLabel="Company"
           removeLabel="Remove experience"
           targetType="experience"
+          showControls={showControls}
           onLogoClick={openLogoModal}
           onUpdate={updateExperience}
           onRemove={removeExperience}
@@ -467,7 +524,7 @@ export default function Profile() {
       </SectionCard>
 
       {/* Education */}
-      <SectionCard title="Education" onAdd={addEducation}>
+      <SectionCard title="Education" onAdd={addEducation} showControls={showControls}>
         <EntryList
           entries={education}
           fallbackBg="#facc15"
@@ -476,6 +533,7 @@ export default function Profile() {
           subtitleLabel="Field of study"
           removeLabel="Remove education"
           targetType="education"
+          showControls={showControls}
           onLogoClick={openLogoModal}
           onUpdate={updateEducation}
           onRemove={removeEducation}

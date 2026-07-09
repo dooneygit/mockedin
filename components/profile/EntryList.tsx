@@ -12,6 +12,7 @@ export function EntryList({
   subtitleLabel,
   removeLabel,
   targetType,
+  showControls,
   onLogoClick,
   onUpdate,
   onRemove,
@@ -24,6 +25,7 @@ export function EntryList({
   subtitleLabel: string;
   removeLabel: string;
   targetType: LogoTarget["type"];
+  showControls: boolean;
   onLogoClick: (target: LogoTarget) => void;
   onUpdate: (id: string, patch: Partial<Entry>) => void;
   onRemove: (id: string) => void;
@@ -88,14 +90,16 @@ export function EntryList({
                 />
               </p>
             </div>
-            <button
-              type="button"
-              aria-label={removeLabel}
-              onClick={() => onRemove(entry.id)}
-              className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
-            >
-              −
-            </button>
+            {showControls && (
+              <button
+                type="button"
+                aria-label={removeLabel}
+                onClick={() => onRemove(entry.id)}
+                className="flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full text-2xl text-[var(--li-text-primary)] hover:bg-black/5"
+              >
+                −
+              </button>
+            )}
           </div>
           </div>
         );
