@@ -6,6 +6,7 @@ import { EditableText } from "@/components/profile/EditableText";
 import { EntryList } from "@/components/profile/EntryList";
 import { EntryLogo } from "@/components/profile/EntryLogo";
 import { ImageUpload } from "@/components/profile/ImageUpload";
+import { Logo } from "@/components/profile/Logo";
 import { LogoModal } from "@/components/profile/LogoModal";
 import { SectionCard } from "@/components/profile/SectionCard";
 import { useEntries } from "@/hooks/useEntries";
@@ -200,7 +201,8 @@ export default function Profile() {
 
   return (
     <main className="w-full max-w-4xl mx-auto py-6 px-4 space-y-2">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <Logo />
         <button
           type="button"
           aria-pressed={!showControls}
