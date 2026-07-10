@@ -362,7 +362,6 @@ export default function Profile() {
                   <button
                     type="button"
                     aria-label={`View ${currentCompany.subtitle} logo`}
-                    onClick={() => openLogoModal({ type: "experience", id: currentCompany.id })}
                     className="group relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-sm"
                   >
                     <EntryLogo
@@ -371,9 +370,6 @@ export default function Profile() {
                       letter={currentCompany.subtitle.charAt(0)}
                       size="sm"
                     />
-                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
-                      Edit
-                    </span>
                   </button>
                   <span className="font-semibold min-w-0 break-words">
                     {currentCompany.subtitle}
@@ -385,7 +381,6 @@ export default function Profile() {
                   <button
                     type="button"
                     aria-label={`View ${currentSchool.title} logo`}
-                    onClick={() => openLogoModal({ type: "education", id: currentSchool.id })}
                     className="group relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-sm"
                   >
                     <EntryLogo
@@ -394,9 +389,6 @@ export default function Profile() {
                       letter={currentSchool.title.charAt(0)}
                       size="sm"
                     />
-                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
-                      Edit
-                    </span>
                   </button>
                   <span className="font-semibold min-w-0 break-words">{currentSchool.title}</span>
                 </div>
