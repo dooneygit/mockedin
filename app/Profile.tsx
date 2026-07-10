@@ -96,6 +96,26 @@ function EyeOffIcon() {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+    >
+      <path d="M3 6h18" />
+      <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+      <path d="M19 6v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6" />
+      <path d="M10 11v6M14 11v6" />
+    </svg>
+  );
+}
+
 export default function Profile() {
   const [banner, setBanner] = useState<string | undefined>(defaults.banner);
   const [avatar, setAvatar] = useState<string | undefined>(defaults.avatar);
@@ -276,6 +296,7 @@ export default function Profile() {
             onClick={resetMockup}
             className="mb-2 flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5"
           >
+            <TrashIcon />
             Reset
           </button>
         </div>
