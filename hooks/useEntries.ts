@@ -19,5 +19,9 @@ export function useEntries(defaults: Entry[]) {
     setEntries((prev) => prev.filter((e) => e.id !== id));
   }
 
-  return { entries, add, update, remove };
+  function reset(next: Entry[]) {
+    setEntries(next);
+  }
+
+  return { entries, add, update, remove, reset };
 }
