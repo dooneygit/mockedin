@@ -5,19 +5,16 @@ import { useState } from "react";
 import { EditableText } from "@/components/profile/EditableText";
 import { EntryList } from "@/components/profile/EntryList";
 import { EntryLogo } from "@/components/profile/EntryLogo";
+import { EyeIcon, EyeOffIcon, TrashIcon } from "@/components/profile/icons";
 import { ImageUpload } from "@/components/profile/ImageUpload";
 import { Logo } from "@/components/profile/Logo";
 import { LogoModal } from "@/components/profile/LogoModal";
 import { SectionCard } from "@/components/profile/SectionCard";
 import { useEntries } from "@/hooks/useEntries";
 import { logoDevImageUrl, type LogoResult } from "@/hooks/useLogoSearch";
-import type { Entry, LogoTarget } from "@/types/profile";
-
-type CommentEntry = {
-  id: string;
-  when: string;
-  body: string;
-};
+import { useMockupStorage } from "@/hooks/useMockupStorage";
+import { clearMockup } from "@/lib/mockupStorage";
+import type { CommentEntry, Entry, LogoTarget, MockupState } from "@/types/profile";
 
 const defaultExperience: Entry[] = [
   {
@@ -49,77 +46,102 @@ const defaultComments: CommentEntry[] = [
   },
 ];
 
-function EyeIcon() {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4"
-    >
-      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-function EyeOffIcon() {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4"
-    >
-      <path d="M9.9 5.2A9.6 9.6 0 0 1 12 5c6.5 0 10 7 10 7a17.3 17.3 0 0 1-3.2 4.1M6.2 6.2A17.3 17.3 0 0 0 2 12s3.5 7 10 7a9.6 9.6 0 0 0 4.2-.9" />
-      <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
-      <path d="m3 3 18 18" />
-    </svg>
-  );
-}
+const defaults = {
+  banner: "/images/default-banner.webp" as string | undefined,
+  avatar: undefined as string | undefined,
+  firstName: "First",
+  lastName: "Last",
+  headline: "Headline",
+  location: "Country",
+  connections: "0",
+  followers: "0",
+  showFollowers: true,
+  showConnections: true,
+  about: "About",
+};
 
 export default function Profile() {
-  const [banner, setBanner] = useState<string | undefined>("/images/default-banner.webp");
-  const [avatar, setAvatar] = useState<string | undefined>();
+  const [banner, setBanner] = useState<string | undefined>(defaults.banner);
+  const [avatar, setAvatar] = useState<string | undefined>(defaults.avatar);
 
-  const [firstName, setFirstName] = useState("First");
-  const [lastName, setLastName] = useState("Last");
-  const [headline, setHeadline] = useState(
-    "Headline",
-  );
-  const [location, setLocation] = useState("Country");
-  const [connections, setConnections] = useState("0");
-  const [followers, setFollowers] = useState("0");
-  const [showFollowers, setShowFollowers] = useState(true);
-  const [showConnections, setShowConnections] = useState(true);
+  const [firstName, setFirstName] = useState(defaults.firstName);
+  const [lastName, setLastName] = useState(defaults.lastName);
+  const [headline, setHeadline] = useState(defaults.headline);
+  const [location, setLocation] = useState(defaults.location);
+  const [connections, setConnections] = useState(defaults.connections);
+  const [followers, setFollowers] = useState(defaults.followers);
+  const [showFollowers, setShowFollowers] = useState(defaults.showFollowers);
+  const [showConnections, setShowConnections] = useState(defaults.showConnections);
 
-  const [about, setAbout] = useState("About");
+  const [about, setAbout] = useState(defaults.about);
 
   const {
     entries: experience,
     add: addExperienceEntry,
     update: updateExperience,
     remove: removeExperience,
+    reset: resetExperience,
   } = useEntries(defaultExperience);
   const {
     entries: education,
     add: addEducationEntry,
     update: updateEducation,
     remove: removeEducation,
+    reset: resetEducation,
   } = useEntries(defaultEducation);
   const [comments, setComments] =
     useState<CommentEntry[]>(defaultComments);
 
   const [logoModal, setLogoModal] = useState<LogoTarget | null>(null);
   const [showControls, setShowControls] = useState(true);
+  const [warning, setWarning] = useState<string | null>(null);
+
+  const mockupState: MockupState = {
+    banner,
+    avatar,
+    firstName,
+    lastName,
+    headline,
+    location,
+    connections,
+    followers,
+    showFollowers,
+    showConnections,
+    about,
+    experience,
+    education,
+    comments,
+  };
+
+  function applyState(s: MockupState) {
+    setBanner(s.banner);
+    setAvatar(s.avatar);
+    setFirstName(s.firstName);
+    setLastName(s.lastName);
+    setHeadline(s.headline);
+    setLocation(s.location);
+    setConnections(s.connections);
+    setFollowers(s.followers);
+    setShowFollowers(s.showFollowers);
+    setShowConnections(s.showConnections);
+    setAbout(s.about);
+    resetExperience(s.experience);
+    resetEducation(s.education);
+    setComments(s.comments);
+  }
+
+  useMockupStorage(mockupState, applyState, setWarning);
+
+  function resetMockup() {
+    clearMockup();
+    applyState({
+      ...defaults,
+      experience: defaultExperience,
+      education: defaultEducation,
+      comments: defaultComments,
+    });
+    setWarning(null);
+  }
 
   const currentCompany = experience?.[0] ?? null;
   const currentSchool = education?.[0] ?? null;
@@ -203,16 +225,43 @@ export default function Profile() {
     <main className="w-full max-w-4xl mx-auto py-6 px-4 space-y-2">
       <div className="flex items-center justify-between">
         <Logo />
-        <button
-          type="button"
-          aria-pressed={!showControls}
-          onClick={() => setShowControls((v) => !v)}
-          className="mb-2 flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5"
-        >
-          {showControls ? <EyeIcon /> : <EyeOffIcon />}
-          Toggle customization
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-pressed={!showControls}
+            onClick={() => setShowControls((v) => !v)}
+            className="mb-2 flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5"
+          >
+            {showControls ? <EyeIcon /> : <EyeOffIcon />}
+            Toggle customization
+          </button>
+          <button
+            type="button"
+            onClick={resetMockup}
+            className="mb-2 flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[var(--li-text-secondary)] hover:bg-black/5"
+          >
+            <TrashIcon />
+            Reset
+          </button>
+        </div>
       </div>
+
+      {warning && (
+        <div
+          role="status"
+          className="flex items-center justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900"
+        >
+          <span>{warning}</span>
+          <button
+            type="button"
+            aria-label="Dismiss warning"
+            onClick={() => setWarning(null)}
+            className="shrink-0 font-semibold hover:underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Profile header card */}
       <section className="li-card overflow-hidden">
