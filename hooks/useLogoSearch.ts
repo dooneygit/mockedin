@@ -16,16 +16,16 @@ export function useLogoSearch() {
   const [searchStatus, setSearchStatus] = useState<"idle" | "loading" | "error">("idle");
 
   useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setSearchResults([]);
-      setSearchStatus("idle");
-      return;
-    }
-
-    setSearchStatus("loading");
     const controller = new AbortController();
 
     const timer = setTimeout(async () => {
+      if (searchQuery.trim() === "") {
+        setSearchResults((prev) => (prev.length === 0 ? prev : []));
+        setSearchStatus("idle");
+        return;
+      }
+
+      setSearchStatus("loading");
       try {
         const res = await fetch(
           `/api/logo-search?q=${encodeURIComponent(searchQuery)}`,
