@@ -98,6 +98,12 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className="min-h-full flex flex-col">
         {children}
+        <footer
+          role="contentinfo"
+          className="mt-auto border-t border-black/10 bg-white/80 px-4 py-2 text-center text-xs text-gray-500 backdrop-blur"
+        >
+          MockedIn — mockup tool, not affiliated with or endorsed by LinkedIn.
+        </footer>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
