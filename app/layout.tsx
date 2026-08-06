@@ -8,21 +8,17 @@ const siteDescription =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "MockedIn — Design LinkedIn-Style Profile Mockups",
+    default: "MockedIn — Create LinkedIn Profile Mockups",
     template: "%s | MockedIn",
   },
   description: siteDescription,
   keywords: [
-    "profile mockup",
     "LinkedIn mockup",
-    "profile builder",
-    "profile preview",
-    "resume mockup",
-    "portfolio mockup",
-    "profile design tool",
-    "fake profile generator",
-    "profile template",
-    "social profile mockup",
+    "LinkedIn profile preview",
+    "LinkedIn profile designer",
+    "fake LinkedIn profile creator",
+    "LinkedIn profile template",
+    "LinkedIn profile mockup",
   ],
   applicationName: "MockedIn",
   alternates: {
