@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next"
 
 const siteUrl = "https://mockedin.com";
 const siteDescription =
@@ -104,6 +105,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <Analytics />
       </body>
     </html>
   );
